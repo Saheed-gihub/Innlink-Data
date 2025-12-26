@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, List, Wallet, User, BadgePercent } from 'lucide-react';
+import { Home, MessageSquare, Bell, Wallet, User } from 'lucide-react';
 
 export default function BottomNav() {
   return (
@@ -9,15 +9,15 @@ export default function BottomNav() {
           <Home className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary" />
           <span className="text-xs text-muted-foreground group-hover:text-primary">Home</span>
         </Link>
-        <Link href="#" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group">
-          <List className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary" />
-          <span className="text-xs text-muted-foreground group-hover:text-primary">History</span>
+        <Link href="/chat" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group">
+          <MessageSquare className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary" />
+          <span className="text-xs text-muted-foreground group-hover:text-primary">Chat</span>
         </Link>
-        <Link href="#" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group">
-            <div className="flex items-center justify-center w-14 h-14 -mt-8 bg-accent rounded-full border-4 border-background shadow-lg">
-                <BadgePercent className="w-6 h-6 text-accent-foreground" />
-            </div>
-            <span className="text-xs text-muted-foreground group-hover:text-primary mt-1">Offers</span>
+        <Link href="/notifications" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group">
+          <div className="flex items-center justify-center w-14 h-14 -mt-8 bg-accent rounded-full border-4 border-background shadow-lg">
+            <Bell className="w-6 h-6 text-accent-foreground" />
+          </div>
+          <span className="text-xs text-muted-foreground group-hover:text-primary mt-1">Alerts</span>
         </Link>
         <Link href="#" className="inline-flex flex-col items-center justify-center px-5 hover:bg-muted group">
           <Wallet className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary" />

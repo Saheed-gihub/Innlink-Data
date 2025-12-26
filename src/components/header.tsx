@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PanelTopOpen, UserCog } from 'lucide-react';
+import { PanelTopOpen, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Header() {
@@ -10,12 +10,17 @@ export default function Header() {
           <PanelTopOpen className="h-6 w-6 text-primary" />
           <span className="font-headline text-lg font-bold">Innlink Data</span>
         </Link>
-        <Link href="/admin">
-           <Button variant="ghost" size="icon">
-             <UserCog className="h-5 w-5" />
-             <span className="sr-only">Admin Dashboard</span>
-           </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+            <Link href="/admin">
+                <Button variant="ghost" size="icon">
+                    <span className="sr-only">Admin Dashboard</span>
+                </Button>
+            </Link>
+             <Button variant="outline" size="sm" className="gap-2">
+                <LifeBuoy className="h-4 w-4" />
+                <span className="hidden sm:inline">Contact Support</span>
+             </Button>
+        </div>
       </div>
     </header>
   );
