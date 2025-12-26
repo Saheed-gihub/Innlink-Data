@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import type { Service, Network } from '@/lib/networks';
 import { detectNetwork, NETWORKS } from '@/lib/networks';
@@ -22,15 +23,19 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 interface PurchaseFormProps {
   service: Service;
-  onPurchaseSuccess: () => void;
 }
 
-export default function PurchaseForm({ service, onPurchaseSuccess }: PurchaseFormProps) {
+export default function PurchaseForm({ service }: PurchaseFormProps) {
   const [network, setNetwork] = useState<Network>('Unknown');
   const [processingState, setProcessingState] = useState<'idle' | 'processing' | 'queued' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [pin, setPin] = useState('');
   const { toast } = useToast();
+  const router = useRouter();
+
+  const onPurchaseSuccess = () => {
+    router.push('/');
+  };
 
   const isAirtime = service.type === 'airtime';
   const isBills = service.type === 'bills';
