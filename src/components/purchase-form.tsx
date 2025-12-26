@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Hourglass, CreditCard, Wallet } from 'lucide-react';
+import { CheckCircle, Hourglass, CreditCard, Wallet, Smartphone } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 interface PurchaseFormProps {
