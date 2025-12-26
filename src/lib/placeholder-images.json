@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "mtn-logo",
+      "description": "MTN Network Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1547563216-4e6a8e4ce2da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxNVE4lMjBsb2dvfGVufDB8fHx8MTc2Njc4MjU2OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "MTN logo"
+    },
+    {
+      "id": "telecel-logo",
+      "description": "Telecel Network Logo",
+      "imageUrl": "https://picsum.photos/seed/telecel/40/40",
+      "imageHint": "Telecel logo"
+    },
+    {
+      "id": "airteltigo-logo",
+      "description": "AirtelTigo Network Logo",
+      "imageUrl": "https://picsum.photos/seed/airteltigo/40/40",
+      "imageHint": "AirtelTigo logo"
+    },
+    {
+      "id": "admin-avatar",
+      "description": "Admin User Avatar",
+      "imageUrl": "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      "imageHint": "person avatar"
+    }
+  ]
 }
