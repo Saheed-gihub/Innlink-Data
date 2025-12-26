@@ -17,7 +17,7 @@ const chartData = [
 const chartConfig = {
   success: {
     label: 'Success',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-1))',
   },
   failed: {
     label: 'Failed',
@@ -85,8 +85,9 @@ export default function AdminPage() {
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
+                  tick={{ fill: 'var(--color-foreground)' }}
                 />
-                <YAxis />
+                <YAxis tick={{ fill: 'var(--color-foreground)' }}/>
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
@@ -119,7 +120,7 @@ export default function AdminPage() {
                                 <TableCell className="text-right">{item.stock}</TableCell>
                                 <TableCell className="text-right">
                                     <Badge variant={item.status === 'Out of Stock' ? 'destructive' : item.status === 'Low Stock' ? 'secondary' : 'default'}
-                                    className={item.status === 'Low Stock' ? 'bg-amber-400 text-black' : ''}
+                                    className={item.status === 'Low Stock' ? 'bg-amber-400 text-black' : item.status === 'In Stock' ? 'bg-green-500/20 text-green-300' : '' }
                                     >
                                         {item.status}
                                     </Badge>

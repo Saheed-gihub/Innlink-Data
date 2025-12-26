@@ -28,7 +28,7 @@ export default function PurchasePage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+       <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 items-center justify-between">
                 <Button variant="ghost" size="icon" onClick={() => router.back()}>
                     <ArrowLeft />

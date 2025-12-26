@@ -141,11 +141,11 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
     return (
         <div className="text-center space-y-4 py-8">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto animate-pulse" />
-            <h3 className="font-headline text-2xl font-bold text-green-600">Transaction Successful</h3>
+            <h3 className="font-headline text-2xl font-bold text-green-400">Transaction Successful</h3>
             {pin && (
-              <Alert variant="default" className="text-left">
-                <AlertTitle className="font-headline">Your Result Checker PIN</AlertTitle>
-                <AlertDescription className="font-mono text-lg font-bold text-primary tracking-widest">{pin}</AlertDescription>
+              <Alert variant="default" className="text-left bg-primary/5 border-primary/20">
+                <AlertTitle className="font-headline text-primary">Your Result Checker PIN</AlertTitle>
+                <AlertDescription className="font-mono text-lg font-bold text-foreground tracking-widest">{pin}</AlertDescription>
                 <p className="text-xs text-muted-foreground mt-2">PIN has been sent via SMS/Email and is shown here for 10 seconds.</p>
               </Alert>
             )}
@@ -157,7 +157,7 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
     return (
         <div className="text-center space-y-4 py-8">
             <Hourglass className="h-16 w-16 text-amber-500 mx-auto animate-spin" />
-            <h3 className="font-headline text-2xl font-bold text-amber-600">Request Queued</h3>
+            <h3 className="font-headline text-2xl font-bold text-amber-400">Request Queued</h3>
             <p className="text-muted-foreground">We've received your request. It will be processed as soon as the network is available. You can safely close this window.</p>
         </div>
     )
@@ -269,7 +269,7 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
             )}
           />
 
-        <Button type="submit" className="w-full font-bold text-lg h-12 bg-accent text-accent-foreground hover:bg-accent/90">
+        <Button type="submit" className="w-full font-bold text-lg h-12 bg-primary text-primary-foreground hover:bg-primary/90">
           Pay Now
         </Button>
       </form>
