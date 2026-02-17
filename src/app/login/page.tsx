@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { PanelTopOpen, Lock, Smartphone, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { PanelTopOpen, Lock, Smartphone, ChevronRight, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +18,16 @@ const AppleIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill=
 export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const router = useRouter();
+
+  const handleVerify = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    setTimeout(() => {
+        router.push('/dashboard');
+    }, 1500);
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -57,13 +68,17 @@ export default function LoginPage() {
                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input id="otp" type="text" placeholder="Enter 6-digit OTP" maxLength={6} className="pl-10 tracking-[0.75em] text-center"/>
                         </div>
-                        <Link href="/dashboard" className="w-full">
-                            <Button className="w-full font-semibold">
-                                Verify & Continue
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                        <Button variant="link" size="sm" onClick={() => setOtpSent(false)} className="w-full">
+                        <Button onClick={handleVerify} className="w-full font-semibold" disabled={isVerifying}>
+                            {isVerifying ? (
+                                <LoaderCircle className="animate-spin" />
+                            ) : (
+                                <>
+                                    Verify & Continue
+                                    <ChevronRight className="ml-2 h-4 w-4" />
+                                </>
+                            )}
+                        </Button>
+                        <Button variant="link" size="sm" onClick={() => { setOtpSent(false); setIsVerifying(false); }} className="w-full" disabled={isVerifying}>
                             Change number
                         </Button>
                     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { PanelTopOpen, LifeBuoy } from 'lucide-react';
+import { PanelTopOpen, LifeBuoy, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -58,6 +58,16 @@ export default function Header() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <Link href="/notifications">
+                <Button variant="outline" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary/80"></span>
+                    </span>
+                    <span className="sr-only">Notifications</span>
+                </Button>
+            </Link>
             <ThemeToggle />
         </div>
       </div>
