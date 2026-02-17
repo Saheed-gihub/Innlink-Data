@@ -55,7 +55,7 @@ export default function LoginPage() {
                     <div className="space-y-4">
                         <div className="relative">
                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input id="otp" type="text" placeholder="Enter 4-digit OTP" className="pl-10 tracking-[1em] text-center"/>
+                            <Input id="otp" type="text" placeholder="Enter 6-digit OTP" maxLength={6} className="pl-10 tracking-[0.75em] text-center"/>
                         </div>
                         <Link href="/dashboard" className="w-full">
                             <Button className="w-full font-semibold">
