@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ServiceType } from '@/lib/networks';
-import { SERVICES } from '@/lib/networks';
+import { SERVICES, NETWORKS } from '@/lib/networks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -26,26 +26,26 @@ export default function ServiceGrid() {
             
             // Special handling for data to show network logos
             if (service.type === 'data') {
-              const networks = Object.values(service.networkProducts || {});
+              const networks = Object.values(NETWORKS).filter(n => n.name !== 'Unknown');
               return (
                 <div key={service.type} className="col-span-4">
                   <div className="grid grid-cols-3 gap-4">
-                     {Object.values(service.networkProducts || {}).flat().map((network) => {
-                         const logo = PlaceHolderImages.find(p => p.id === (network as any).logoId);
+                     {networks.map((network) => {
+                         const logo = PlaceHolderImages.find(p => p.id === network.logo);
                          return (
-                            <Link href={`/purchase/data?network=${(network as any).name}`} key={(network as any).name} className="contents">
+                            <Link href={`/purchase/data?network=${network.name}`} key={network.name} className="contents">
                                 <div className="group cursor-pointer flex flex-col items-center gap-2 rounded-lg p-2 transition-all hover:bg-muted">
                                     {logo && (
                                     <Image
                                         src={logo.imageUrl}
-                                        alt={`${(network as any).name} logo`}
+                                        alt={`${network.name} logo`}
                                         width={48}
                                         height={48}
                                         className="h-12 w-12 rounded-full object-cover border-2 border-card group-hover:border-primary transition-all"
                                         data-ai-hint={logo.imageHint}
                                     />
                                     )}
-                                  <p className="text-xs font-semibold text-center text-muted-foreground group-hover:text-primary">{(network as any).name}</p>
+                                  <p className="text-xs font-semibold text-center text-muted-foreground group-hover:text-primary">{network.name}</p>
                                 </div>
                             </Link>
                          )
