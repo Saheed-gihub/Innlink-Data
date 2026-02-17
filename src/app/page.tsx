@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import ServiceGrid from '@/components/service-grid';
+import DataNetworkGrid from '@/components/data-network-grid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -55,6 +56,8 @@ export default function Home() {
               </CardContent>
             </Card>
 
+            <DataNetworkGrid />
+            
             <ServiceGrid />
 
             <Card className="shadow-lg">

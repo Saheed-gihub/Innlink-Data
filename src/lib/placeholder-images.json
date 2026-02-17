@@ -3,20 +3,20 @@
     {
       "id": "mtn-logo",
       "description": "MTN Network Logo",
-      "imageUrl": "https://images.unsplash.com/photo-1547563216-4e6a8e4ce2da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxNVE4lMjBsb2dvfGVufDB8fHx8MTc2Njc4MjU2OXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "MTN logo"
+      "imageUrl": "https://images.unsplash.com/photo-1633352653339-1b9c35f061d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxNVG4lMjBsb2dvfGVufDB8fHx8MTc2NjgxODg0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "yellow logo"
     },
     {
       "id": "telecel-logo",
       "description": "Telecel Network Logo",
-      "imageUrl": "https://picsum.photos/seed/telecel/40/40",
-      "imageHint": "Telecel logo"
+      "imageUrl": "https://images.unsplash.com/photo-1599305445671-ac29a0857058?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZWQlMjBjaXJjbGUlMjBsb2dvfGVufDB8fHx8MTc2NjgxODg5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red logo"
     },
     {
       "id": "airteltigo-logo",
       "description": "AirtelTigo Network Logo",
-      "imageUrl": "https://picsum.photos/seed/airteltigo/40/40",
-      "imageHint": "AirtelTigo logo"
+      "imageUrl": "https://images.unsplash.com/photo-1611095965933-285c5357b952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxibHVlJTIwcmVkJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY2ODEyMzMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract logo"
     },
     {
       "id": "admin-avatar",

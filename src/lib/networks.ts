@@ -45,6 +45,7 @@ export interface Service {
   icon: LucideIcon;
   iconColor: string;
   products: Product[];
+  networkProducts?: Record<string, Product[]>;
   requiresPhone: boolean;
 }
 
@@ -56,12 +57,27 @@ export const SERVICES: Record<ServiceType, Service> = {
     icon: Wifi,
     iconColor: 'text-blue-500',
     requiresPhone: true,
-    products: [
-      { id: 'data-1', name: '500 MB (1 Day)', price: 2.00 },
-      { id: 'data-2', name: '1 GB (7 Days)', price: 5.00 },
-      { id: 'data-3', name: '5 GB (30 Days)', price: 20.00 },
-      { id: 'data-4', name: '10 GB (30 Days)', price: 40.00 },
-    ],
+    products: [],
+    networkProducts: {
+      MTN: [
+        { id: 'mtn-data-1', name: '500 MB (1 Day)', price: 2.50 },
+        { id: 'mtn-data-2', name: '1.2 GB (7 Days)', price: 5.00 },
+        { id: 'mtn-data-3', name: '5 GB (30 Days)', price: 20.00 },
+        { id: 'mtn-data-4', name: '10 GB (30 Days)', price: 40.00 },
+      ],
+      Telecel: [
+        { id: 'telecel-data-1', name: '600 MB (1 Day)', price: 2.50 },
+        { id: 'telecel-data-2', name: '1.5 GB (7 Days)', price: 5.00 },
+        { id: 'telecel-data-3', name: '6 GB (30 Days)', price: 20.00 },
+        { id: 'telecel-data-4', name: '12 GB (30 Days)', price: 40.00 },
+      ],
+      AirtelTigo: [
+        { id: 'airteltigo-data-1', name: '550 MB (1 Day)', price: 2.50 },
+        { id: 'airteltigo-data-2', name: '1.3 GB (7 Days)', price: 5.00 },
+        { id: 'airteltigo-data-3', name: '5.5 GB (30 Days)', price: 20.00 },
+        { id: 'airteltigo-data-4', name: '11 GB (30 Days)', price: 40.00 },
+      ],
+    }
   },
   airtime: {
     type: 'airtime',

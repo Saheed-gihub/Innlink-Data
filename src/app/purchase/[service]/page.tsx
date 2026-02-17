@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SERVICES, ServiceType } from '@/lib/networks';
 import PurchaseForm from '@/components/purchase-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +12,9 @@ import BottomNav from '@/components/bottom-nav';
 export default function PurchasePage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const serviceType = params.service as ServiceType;
+  const preselectedNetwork = searchParams.get('network');
   
   if (!serviceType || !SERVICES[serviceType]) {
     // Option 1: Show a loading state while params are not yet available
@@ -49,7 +51,7 @@ export default function PurchasePage() {
                         <CardDescription>{service.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <PurchaseForm service={service} />
+                        <PurchaseForm service={service} preselectedNetwork={preselectedNetwork} />
                     </CardContent>
                 </Card>
             </div>

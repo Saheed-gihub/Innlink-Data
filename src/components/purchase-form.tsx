@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import type { Service, Network } from '@/lib/networks';
+import type { Service, Network, Product } from '@/lib/networks';
 import { detectNetwork, NETWORKS } from '@/lib/networks';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -24,10 +24,11 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 interface PurchaseFormProps {
   service: Service;
+  preselectedNetwork?: string | null;
 }
 
-export default function PurchaseForm({ service }: PurchaseFormProps) {
-  const [network, setNetwork] = useState<Network>('Unknown');
+export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFormProps) {
+  const [network, setNetwork] = useState<Network>((preselectedNetwork as Network) || 'Unknown');
   const [processingState, setProcessingState] = useState<'idle' | 'processing' | 'queued' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [pin, setPin] = useState('');
@@ -57,21 +58,32 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
     },
   });
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPhone = e.target.value;
-    form.setValue('phone', newPhone);
-    setNetwork(detectNetwork(newPhone));
-  };
+  const phoneValue = form.watch('phone');
+  
+  useEffect(() => {
+    if (service.requiresPhone) {
+      const detected = detectNetwork(phoneValue || '');
+      if (detected !== network) {
+        setNetwork(detected);
+        form.setValue('productId', ''); // Reset bundle selection on network change
+      }
+    }
+  }, [phoneValue, service.requiresPhone, network, form]);
+
 
   const networkInfo = NETWORKS[network];
   const networkLogo = PlaceHolderImages.find(p => p.id === networkInfo?.logo);
+  
+  const productsToShow: Product[] = (service.networkProducts && network !== 'Unknown' && service.networkProducts[network])
+    ? service.networkProducts[network]
+    : service.products;
+
 
   const simulateTransaction = () => {
     setPin('');
     setProgress(0);
     setProcessingState('processing');
     
-    // Simulate API downtime for queue feature
     const isApiDown = Math.random() < 0.2; 
     
     if (isApiDown) {
@@ -176,7 +188,7 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
                 <FormLabel>Phone Number</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <Input placeholder="024 123 4567" {...field} type="tel" onChange={handlePhoneChange} className="pl-10"/>
+                    <Input placeholder="024 123 4567" {...field} type="tel" className="pl-10"/>
                   </FormControl>
                   <div className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center">
                     {network !== 'Unknown' && networkLogo ? (
@@ -213,14 +225,14 @@ export default function PurchaseForm({ service }: PurchaseFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{service.type === 'results' || service.type === 'bills' ? 'Select Item' : 'Select Bundle'}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={`Select a ${service.type === 'results' ? 'card' : 'bundle'}`} />
+                    <SelectTrigger disabled={network === 'Unknown' && service.type === 'data'}>
+                      <SelectValue placeholder={network === 'Unknown' && service.type === 'data' ? 'Enter phone number first' : `Select a ${service.type === 'results' ? 'card' : 'bundle'}`} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {service.products.map(product => (
+                    {(productsToShow || []).map(product => (
                       <SelectItem key={product.id} value={product.id}>
                         <div className="flex justify-between w-full">
                             <span>{product.name}</span>
