@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -69,7 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SidebarFooter className="p-4">
              <SidebarMenu>
                  <SidebarMenuItem>
-                    <Link href="/" className="w-full">
+                    <Link href="/dashboard" className="w-full">
                         <SidebarMenuButton tooltip="Logout">
                             <LogOut />
                             <span>Logout</span>

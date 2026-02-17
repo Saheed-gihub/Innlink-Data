@@ -28,15 +28,21 @@ interface PurchaseFormProps {
 }
 
 export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFormProps) {
-  const [network, setNetwork] = useState<Network>((preselectedNetwork as Network) || 'Unknown');
+  const [network, setNetwork] = useState<Network>('Unknown');
   const [processingState, setProcessingState] = useState<'idle' | 'processing' | 'queued' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [pin, setPin] = useState('');
   const { toast } = useToast();
   const router = useRouter();
 
+  useEffect(() => {
+    if (preselectedNetwork) {
+      setNetwork(preselectedNetwork as Network);
+    }
+  }, [preselectedNetwork]);
+
   const onPurchaseSuccess = () => {
-    router.push('/');
+    router.push('/dashboard');
   };
 
   const isAirtime = service.type === 'airtime';
@@ -227,8 +233,8 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
                 <FormLabel>{service.type === 'results' || service.type === 'bills' ? 'Select Item' : 'Select Bundle'}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger disabled={network === 'Unknown' && service.type === 'data'}>
-                      <SelectValue placeholder={network === 'Unknown' && service.type === 'data' ? 'Enter phone number first' : `Select a ${service.type === 'results' ? 'card' : 'bundle'}`} />
+                    <SelectTrigger disabled={network === 'Unknown' && service.requiresPhone}>
+                      <SelectValue placeholder={network === 'Unknown' && service.requiresPhone ? 'Enter phone number first' : `Select a ${service.type === 'results' ? 'card' : 'bundle'}`} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

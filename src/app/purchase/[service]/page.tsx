@@ -21,7 +21,7 @@ export default function PurchasePage() {
     return <Loading />;
     // Option 2: Or redirect if the service is invalid after checking
     // if (router.isReady) { // Make sure router is ready before redirecting
-    //   router.push('/');
+    //   router.push('/dashboard');
     // }
     // return <Loading />; // Still show loading while router is preparing
   }
