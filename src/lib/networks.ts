@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Wifi, Smartphone, GraduationCap, Lightbulb, Tv, Router, Ticket, ShieldCheck } from 'lucide-react';
+import { Wifi, Smartphone, GraduationCap, Lightbulb, Tv, Router, Ticket, ShieldCheck, RefreshCcw } from 'lucide-react';
 
 export type Network = 'MTN' | 'Telecel' | 'AirtelTigo' | 'Unknown';
 
@@ -36,7 +36,7 @@ export interface Product {
   price: number;
 }
 
-export type ServiceType = 'data' | 'airtime' | 'results' | 'bills' | 'tv' | 'internet' | 'vouchers' | 'tickets';
+export type ServiceType = 'data' | 'airtime' | 'results' | 'bills' | 'tv' | 'internet' | 'vouchers' | 'tickets' | 'airtime-to-cash';
 
 export interface Service {
   type: ServiceType;
@@ -45,7 +45,7 @@ export interface Service {
   icon: LucideIcon;
   iconColor: string;
   products: Product[];
-  networkProducts?: Record<string, Product[] | {name: string, logoId: string}[]>;
+  networkProducts?: Record<string, Product[]>;
   requiresPhone: boolean;
 }
 
@@ -60,19 +60,22 @@ export const SERVICES: Record<ServiceType, Service> = {
     products: [],
     networkProducts: {
         MTN: [
-            { id: 'mtn-data-1', name: '500 MB (1 Day)', price: 2.50 },
-            { id: 'mtn-data-2', name: '1.2 GB (7 Days)', price: 5.00 },
-            { id: 'mtn-data-3', name: '5 GB (30 Days)', price: 20.00 },
+            { id: 'mtn-data-1', name: '500MB (1 Day)', price: 2.50 },
+            { id: 'mtn-data-2', name: '1.2GB (7 Days)', price: 5.00 },
+            { id: 'mtn-data-3', name: '5GB (30 Days)', price: 20.00 },
+            { id: 'mtn-data-4', name: '15GB (Night Only)', price: 10.00 },
         ],
         Telecel: [
-            { id: 'telecel-data-1', name: '600 MB (1 Day)', price: 2.50 },
-            { id: 'telecel-data-2', name: '1.5 GB (7 Days)', price: 5.00 },
-            { id: 'telecel-data-3', name: '6 GB (30 Days)', price: 20.00 },
+            { id: 'telecel-data-1', name: '600MB (1 Day)', price: 2.50 },
+            { id: 'telecel-data-2', name: '1.5GB (7 Days)', price: 5.00 },
+            { id: 'telecel-data-3', name: '6GB (30 Days)', price: 20.00 },
+            { id: 'telecel-data-4', name: 'Unlimited (3 Hours)', price: 10.00 },
         ],
         AirtelTigo: [
-            { id: 'airteltigo-data-1', name: '550 MB (1 Day)', price: 2.50 },
-            { id: 'airteltigo-data-2', name: '1.3 GB (7 Days)', price: 5.00 },
-            { id: 'airteltigo-data-3', name: '5.5 GB (30 Days)', price: 20.00 },
+            { id: 'airteltigo-data-1', name: '550MB (1 Day)', price: 2.50 },
+            { id: 'airteltigo-data-2', name: '1.3GB (7 Days)', price: 5.00 },
+            { id: 'airteltigo-data-3', name: '5.5GB (30 Days)', price: 20.00 },
+            { id: 'airteltigo-data-4', name: 'Social Pack (WA/FB/IG)', price: 5.00 },
         ],
     }
   },
@@ -83,78 +86,95 @@ export const SERVICES: Record<ServiceType, Service> = {
     icon: Smartphone,
     iconColor: 'text-green-500',
     requiresPhone: true,
-    products: [], // Airtime uses a custom amount
+    products: [],
+  },
+  'airtime-to-cash': {
+    type: 'airtime-to-cash',
+    title: 'Cash Out',
+    description: 'Convert Airtime to Wallet Money.',
+    icon: RefreshCcw,
+    iconColor: 'text-pink-500',
+    requiresPhone: true,
+    products: [],
   },
   results: {
     type: 'results',
     title: 'Result PINs',
-    description: 'WASSCE, BECE & more.',
+    description: 'WAEC, BECE & Checker PINs.',
     icon: GraduationCap,
     iconColor: 'text-purple-500',
     requiresPhone: false,
     products: [
-      { id: 'res-1', name: 'BECE Results Checker', price: 25.00 },
-      { id: 'res-2', name: 'WASSCE Results Checker', price: 30.00 },
-      { id: 'res-3', name: 'CSSPS Placement Checker', price: 15.00 },
+      { id: 'res-1', name: 'BECE Checker PIN', price: 25.00 },
+      { id: 'res-2', name: 'WASSCE Checker PIN', price: 30.00 },
+      { id: 'res-3', name: 'CSSPS Placement PIN', price: 15.00 },
+      { id: 'res-4', name: 'Nurses/Midwifery PIN', price: 50.00 },
     ],
   },
   bills: {
     type: 'bills',
-    title: 'Pay Bills',
-    description: 'ECG, Ghana Water, etc.',
+    title: 'Bills',
+    description: 'ECG, Ghana Water, Taxes.',
     icon: Lightbulb,
     iconColor: 'text-yellow-500',
     requiresPhone: false,
     products: [
-      { id: 'bill-1', name: 'ECG Postpaid', price: 0 },
-      { id: 'bill-2', name: 'Ghana Water', price: 0 },
+      { id: 'bill-1', name: 'ECG Postpaid Bill', price: 0 },
+      { id: 'bill-2', name: 'Ghana Water Bill', price: 0 },
+      { id: 'bill-3', name: 'DStv Box Office', price: 15.00 },
     ],
   },
   tv: {
     type: 'tv',
     title: 'TV',
-    description: 'DSTV, GoTV subscriptions.',
+    description: 'DStv, GOtv, StarTimes.',
     icon: Tv,
     iconColor: 'text-orange-500',
     requiresPhone: false,
     products: [
-        { id: 'tv-1', name: 'DSTV Subscription', price: 0 },
-        { id: 'tv-2', name: 'GoTV Subscription', price: 0 },
+        { id: 'tv-1', name: 'DStv Premium', price: 600.00 },
+        { id: 'tv-2', name: 'DStv Compact Plus', price: 400.00 },
+        { id: 'tv-3', name: 'GOtv Max', price: 120.00 },
+        { id: 'tv-4', name: 'StarTimes Super', price: 90.00 },
     ]
   },
   internet: {
     type: 'internet',
     title: 'Internet',
-    description: 'Broadband subscriptions.',
+    description: 'Fiber & Broadband.',
     icon: Router,
     iconColor: 'text-indigo-500',
     requiresPhone: false,
     products: [
-        { id: 'internet-1', name: 'Surfline', price: 0 },
-        { id: 'internet-2', name: 'Busy', price: 0 },
+        { id: 'internet-1', name: 'MTN Fiber (50GB)', price: 150.00 },
+        { id: 'internet-2', name: 'Telecel Fixed (100GB)', price: 250.00 },
+        { id: 'internet-3', name: 'Busy Unlimited Monthly', price: 400.00 },
     ]
   },
   vouchers: {
     type: 'vouchers',
     title: 'Vouchers',
-    description: 'E-vouchers for various services.',
+    description: 'Gaming & App Store.',
     icon: ShieldCheck,
     iconColor: 'text-rose-500',
     requiresPhone: false,
     products: [
-        { id: 'voucher-1', name: 'GCE A-Level', price: 0 },
-        { id: 'voucher-2', name: 'GCE O-Level', price: 0 },
+        { id: 'v-1', name: 'Google Play $10', price: 150.00 },
+        { id: 'v-2', name: 'Netflix Premium (1m)', price: 100.00 },
+        { id: 'v-3', name: 'PlayStation Plus (3m)', price: 350.00 },
     ]
   },
   tickets: {
     type: 'tickets',
     title: 'Tickets',
-    description: 'Buy event tickets.',
+    description: 'Events & Concerts.',
     icon: Ticket,
     iconColor: 'text-cyan-500',
     requiresPhone: false,
     products: [
-        { id: 'ticket-1', name: 'Raptor Concert', price: 100 },
+        { id: 't-1', name: 'Raptor Concert (VIP)', price: 250.00 },
+        { id: 't-2', name: 'Accra Fashion Week', price: 100.00 },
+        { id: 't-3', name: 'Decemba 2 Rememba', price: 150.00 },
     ]
   }
 };

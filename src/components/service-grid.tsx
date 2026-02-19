@@ -9,10 +9,10 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function ServiceGrid() {
-  const serviceOrder: ServiceType[] = ['data', 'airtime', 'results', 'bills', 'tv', 'internet', 'vouchers', 'tickets'];
+  const serviceOrder: ServiceType[] = ['data', 'airtime', 'airtime-to-cash', 'results', 'bills', 'tv', 'internet', 'vouchers', 'tickets'];
 
   return (
-    <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4 lg:gap-6">
+    <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3 md:gap-4 lg:gap-6">
         {serviceOrder.map((serviceType) => {
         const service = SERVICES[serviceType];
         if (!service) return null;
@@ -22,7 +22,7 @@ export default function ServiceGrid() {
         if (service.type === 'data') {
             const networks = Object.values(NETWORKS).filter(n => n.name !== 'Unknown');
             return (
-            <Card key={service.type} className="col-span-4 sm:col-span-4 md:col-span-6 lg:col-span-8 border-none shadow-none bg-transparent">
+            <Card key={service.type} className="col-span-4 sm:col-span-4 md:col-span-6 lg:col-span-9 border-none shadow-none bg-transparent">
                 <CardContent className="p-0">
                 <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
                     {networks.map((network) => {
