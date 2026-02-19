@@ -48,10 +48,14 @@ export default function Header() {
           <span className="font-headline text-lg sm:text-xl font-bold tracking-tight hidden sm:inline-block">Innlink <span className="text-primary">Data</span></span>
         </Link>
 
+        {/* Search Bar - Center Section */}
         <div className="flex-1 max-w-sm mx-4 hidden lg:block">
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search services..." className="pl-10 bg-muted/30 border-none rounded-full h-10 focus-visible:ring-primary/50" />
+                <Input 
+                    placeholder="Search services..." 
+                    className="pl-10 bg-muted/30 border-none rounded-full h-10 focus-visible:ring-primary/50" 
+                />
             </div>
         </div>
 
