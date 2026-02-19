@@ -77,7 +77,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-sm:max-w-[340px] max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
             <Link href="/" className="flex items-center gap-2 mb-4">
                 <PanelTopOpen className="h-8 w-8 text-primary" />
@@ -86,7 +86,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             {otpSent ? 'Enter OTP' : 'Login'}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 px-4">
             {otpSent 
                 ? `Enter the 4-digit code sent to ${phone}` 
                 : 'Enter your phone number to access your account'
@@ -112,7 +112,7 @@ export default function LoginPage() {
                                     type="tel" 
                                     placeholder="0241234567" 
                                     className={cn(
-                                        "pl-9",
+                                        "pl-9 h-11",
                                         phoneError && "border-destructive focus-visible:ring-destructive"
                                     )}
                                     value={phone}
@@ -133,7 +133,7 @@ export default function LoginPage() {
                         </div>
                         <Button 
                             onClick={handleSendOtp} 
-                            className="w-full font-semibold" 
+                            className="w-full h-11 font-semibold" 
                             disabled={phone.length < 10}
                         >
                             Get Security Code
@@ -156,7 +156,7 @@ export default function LoginPage() {
                                     placeholder="----" 
                                     maxLength={4} 
                                     className={cn(
-                                        "pl-9 tracking-widest text-lg font-bold",
+                                        "pl-9 h-11 tracking-widest text-lg font-bold",
                                         otpError && "border-destructive focus-visible:ring-destructive"
                                     )}
                                     value={otp}
@@ -176,7 +176,7 @@ export default function LoginPage() {
                         </div>
                         <Button 
                             onClick={handleVerify} 
-                            className="w-full font-semibold" 
+                            className="w-full h-11 font-semibold" 
                             disabled={isVerifying || !isOtpValid}
                         >
                             {isVerifying ? (
@@ -189,7 +189,7 @@ export default function LoginPage() {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => { setOtpSent(false); setOtp(''); setIsVerifying(false); setOtpError(''); }} 
-                            className="w-full text-xs text-muted-foreground" 
+                            className="w-full h-10 text-xs text-muted-foreground" 
                             disabled={isVerifying}
                         >
                             Change phone number
