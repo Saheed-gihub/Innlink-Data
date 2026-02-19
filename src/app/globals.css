@@ -16,14 +16,14 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
+    --accent: 188 95% 57%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.8rem;
+    --ring: 256 84% 69%;
+    --radius: 1rem;
 
     --chart-1: 256 84% 69%;
     --chart-2: 188 95% 57%;
@@ -42,24 +42,24 @@
   }
 
   .dark {
-    --background: 228 9% 10%;
+    --background: 228 12% 8%;
     --foreground: 210 40% 98%;
-    --card: 228 9% 14%;
+    --card: 228 12% 12%;
     --card-foreground: 210 40% 98%;
-    --popover: 228 9% 10%;
+    --popover: 228 12% 8%;
     --popover-foreground: 210 40% 98%;
     --primary: 256 84% 69%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 216 34% 17%;
+    --secondary: 228 12% 16%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 216 34% 17%;
+    --muted: 228 12% 16%;
     --muted-foreground: 215 20% 65%;
     --accent: 188 95% 57%;
-    --accent-foreground: 228 9% 14%;
+    --accent-foreground: 228 12% 12%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 228 9% 20%;
-    --input: 228 9% 20%;
+    --border: 228 12% 18%;
+    --input: 228 12% 18%;
     --ring: 256 84% 69%;
     
     --chart-1: 256 84% 69%;
@@ -68,13 +68,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    --sidebar-background: 228 9% 12%;
+    --sidebar-background: 228 12% 10%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 256 84% 69%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 216 34% 20%;
+    --sidebar-accent: 228 12% 14%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 228 9% 20%;
+    --sidebar-border: 228 12% 18%;
     --sidebar-ring: 256 84% 69%;
   }
 }
@@ -86,4 +86,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.glass-card {
+  @apply bg-card/40 backdrop-blur-xl border-white/5 shadow-2xl;
+}
+
+.mesh-gradient {
+  background: radial-gradient(at 0% 0%, hsla(256, 84%, 69%, 0.15) 0px, transparent 50%),
+              radial-gradient(at 100% 100%, hsla(188, 95%, 57%, 0.1) 0px, transparent 50%);
 }
