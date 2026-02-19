@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import ServiceGrid from '@/components/service-grid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus } from 'lucide-react';
+import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus, UserCircle } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import PromoBanner from '@/components/promo-banner';
@@ -23,8 +23,16 @@ const recentTransactions = [
 
 export default function DashboardPage() {
   const [walletBalance] = useState(125.50);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const { toast } = useToast();
-  const adminAvatar = PlaceHolderImages.find(p => p.id === 'admin-avatar');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUserName(localStorage.getItem('userName'));
+      setUserAvatar(localStorage.getItem('userAvatar'));
+    }
+  }, []);
 
   const handleAction = (action: string) => {
     toast({
@@ -48,15 +56,29 @@ export default function DashboardPage() {
               <CardContent className="p-6 md:p-10">
                 <div className="flex items-center justify-between mb-8 md:mb-12">
                   <div className="space-y-1">
-                    <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-widest">Good Morning,</p>
-                    <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Daniel <span className="text-primary">👋</span></h2>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-widest">
+                      {userName ? 'Welcome Back,' : 'Get Started,'}
+                    </p>
+                    <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                      {userName || 'New User'} <span className="text-primary">👋</span>
+                    </h2>
+                    {!userName && (
+                        <Link href="/profile" className="inline-block pt-2">
+                            <Button variant="link" className="p-0 h-auto text-xs text-primary font-bold">
+                                Complete your profile to personalize your app
+                            </Button>
+                        </Link>
+                    )}
                   </div>
-                   {adminAvatar && (
-                    <Avatar className="h-12 w-12 sm:h-14 sm:w-14 md:h-20 md:w-20 ring-4 ring-primary/10">
-                      <AvatarImage src={adminAvatar.imageUrl} alt="User Avatar" data-ai-hint={adminAvatar.imageHint} />
-                      <AvatarFallback>D</AvatarFallback>
-                    </Avatar>
-                   )}
+                  <Avatar className="h-12 w-12 sm:h-14 sm:w-14 md:h-20 md:w-20 ring-4 ring-primary/10 transition-all hover:scale-105">
+                    {userAvatar ? (
+                        <AvatarImage src={userAvatar} alt="User Avatar" />
+                    ) : (
+                        <AvatarFallback className="bg-muted">
+                            <UserCircle className="h-8 w-8 text-muted-foreground" />
+                        </AvatarFallback>
+                    )}
+                  </Avatar>
                 </div>
 
                 <div className="relative z-10 space-y-6 md:space-y-10">
