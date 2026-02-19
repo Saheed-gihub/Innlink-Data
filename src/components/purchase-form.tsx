@@ -71,7 +71,7 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
       const detected = detectNetwork(phoneValue || '');
       if (detected !== network) {
         setNetwork(detected);
-        form.setValue('productId', ''); // Reset bundle selection on network change
+        form.setValue('productId', ''); // Reset selection on network change
       }
     }
   }, [phoneValue, service.requiresPhone, network, form]);
@@ -81,7 +81,7 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
   const networkLogo = PlaceHolderImages.find(p => p.id === networkInfo?.logo);
   
   const productsToShow: Product[] = (service.networkProducts && network !== 'Unknown' && service.networkProducts[network])
-    ? service.networkProducts[network]
+    ? (service.networkProducts[network] as Product[])
     : service.products;
 
 
@@ -90,14 +90,14 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
     setProgress(0);
     setProcessingState('processing');
     
-    const isApiDown = Math.random() < 0.2; 
+    // Simulate random network delay/queue (10% chance)
+    const isQueued = Math.random() < 0.1; 
     
-    if (isApiDown) {
+    if (isQueued) {
         setProcessingState('queued');
         toast({
-            title: "Network Busy",
-            description: "The network is currently busy. Your request has been queued and will be processed shortly.",
-            variant: "default",
+            title: "Network Latency Detected",
+            description: "High traffic on the provider network. Your request is queued.",
         });
         setTimeout(() => {
             onPurchaseSuccess();
@@ -108,23 +108,21 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
 
     const interval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 90) {
-          return prev;
-        }
+        if (prev >= 90) return prev;
         return prev + 10;
       });
-    }, 200);
+    }, 300);
 
     setTimeout(() => {
       clearInterval(interval);
       setProgress(100);
       setProcessingState('success');
       
-      let successMessage = "Purchase successful!";
+      let successMessage = "Transaction completed successfully!";
       if(service.type === 'results') {
-        const generatedPin = `${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;
+        const generatedPin = `${Math.floor(1000 + Math.random() * 8999)}-${Math.floor(1000 + Math.random() * 8999)}-${Math.floor(1000 + Math.random() * 8999)}`;
         setPin(generatedPin);
-        successMessage = "Result checker PIN generated successfully!";
+        successMessage = "Result checker PIN delivered.";
       }
 
       toast({
@@ -132,51 +130,73 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
         description: successMessage,
       });
 
+      // Auto-redirect after a few seconds
       setTimeout(() => {
         onPurchaseSuccess();
         setProcessingState('idle');
-      }, service.type === 'results' ? 10000 : 3000);
+      }, service.type === 'results' ? 12000 : 3500);
 
-    }, 2000);
+    }, 2500);
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     simulateTransaction();
   };
 
   if (processingState === 'processing') {
     return (
-        <div className="text-center space-y-4 py-8">
-            <p className="font-semibold text-primary">Processing your request...</p>
-            <Progress value={progress} className="w-full" />
-            <p className="text-sm text-muted-foreground">Please wait while we complete your transaction.</p>
+        <div className="text-center space-y-6 py-12">
+            <div className="relative mx-auto w-24 h-24">
+                <Hourglass className="h-24 w-24 text-primary animate-spin" />
+            </div>
+            <div className="space-y-2">
+                <h3 className="text-xl font-bold font-headline">Processing Payment</h3>
+                <p className="text-sm text-muted-foreground">Securing your connection to the gateway...</p>
+            </div>
+            <Progress value={progress} className="w-full max-w-xs mx-auto" />
         </div>
     )
   }
 
   if (processingState === 'success') {
     return (
-        <div className="text-center space-y-4 py-8">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto animate-pulse" />
-            <h3 className="font-headline text-2xl font-bold text-green-400">Transaction Successful</h3>
+        <div className="text-center space-y-6 py-12">
+            <div className="h-20 w-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle className="h-12 w-12 text-green-500 animate-bounce" />
+            </div>
+            <div className="space-y-2">
+                <h3 className="font-headline text-3xl font-bold text-green-400">Paid Successfully</h3>
+                <p className="text-muted-foreground">Your wallet has been debited.</p>
+            </div>
+            
             {pin && (
-              <Alert variant="default" className="text-left bg-primary/5 border-primary/20">
-                <AlertTitle className="font-headline text-primary">Your Result Checker PIN</AlertTitle>
-                <AlertDescription className="font-mono text-lg font-bold text-foreground tracking-widest">{pin}</AlertDescription>
-                <p className="text-xs text-muted-foreground mt-2">PIN has been sent via SMS/Email and is shown here for 10 seconds.</p>
+              <Alert className="text-left bg-primary/5 border-primary/20 max-w-sm mx-auto">
+                <AlertTitle className="font-headline font-bold text-primary mb-2">Checker PIN Details</AlertTitle>
+                <AlertDescription>
+                    <div className="bg-background/80 p-3 rounded-md border border-primary/10 select-all">
+                        <p className="font-mono text-xl font-bold text-center tracking-widest">{pin}</p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-3 italic text-center">
+                        Redirecting to dashboard in 10s...
+                    </p>
+                </AlertDescription>
               </Alert>
             )}
+            
+            {!pin && <p className="text-sm text-muted-foreground">Redirecting to Home...</p>}
         </div>
     )
   }
   
     if (processingState === 'queued') {
     return (
-        <div className="text-center space-y-4 py-8">
-            <Hourglass className="h-16 w-16 text-amber-500 mx-auto animate-spin" />
-            <h3 className="font-headline text-2xl font-bold text-amber-400">Request Queued</h3>
-            <p className="text-muted-foreground">We've received your request. It will be processed as soon as the network is available. You can safely close this window.</p>
+        <div className="text-center space-y-6 py-12">
+            <Hourglass className="h-20 w-20 text-amber-500 mx-auto animate-pulse" />
+            <h3 className="font-headline text-2xl font-bold text-amber-400">Request Pending</h3>
+            <div className="max-w-xs mx-auto text-muted-foreground text-sm">
+                We've received your request. Due to network congestion, this may take a moment. We'll notify you when it's done.
+            </div>
+            <Button variant="outline" onClick={onPurchaseSuccess} className="mt-4">Back to Home</Button>
         </div>
     )
   }
@@ -194,13 +214,13 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
                 <FormLabel>Phone Number</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <Input placeholder="024 123 4567" {...field} type="tel" className="pl-10"/>
+                    <Input placeholder="024 123 4567" {...field} type="tel" className="pl-10 h-12"/>
                   </FormControl>
-                  <div className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center">
                     {network !== 'Unknown' && networkLogo ? (
-                         <Image src={networkLogo.imageUrl} alt={networkInfo.name} width={24} height={24} className="rounded-full" data-ai-hint={networkLogo.imageHint} />
+                         <Image src={networkLogo.imageUrl} alt={networkInfo.name} width={24} height={24} className="rounded-full shadow-sm" data-ai-hint={networkLogo.imageHint} />
                     ) : (
-                        <Smartphone className="h-5 w-5 text-muted-foreground" />
+                        <Smartphone className="h-5 w-5 text-muted-foreground/50" />
                     )}
                   </div>
                 </div>
@@ -218,8 +238,24 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
               <FormItem>
                 <FormLabel>Amount (GHS)</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., 10" type="number" {...field} />
+                  <Input placeholder="Enter amount" type="number" {...field} className="h-12" />
                 </FormControl>
+                {isAirtime && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {[5, 10, 20, 50].map(amt => (
+                            <Button 
+                                key={amt} 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => form.setValue('amount', amt)}
+                                className="rounded-full"
+                            >
+                                GHS {amt}
+                            </Button>
+                        ))}
+                    </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -230,19 +266,19 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
             name="productId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{service.type === 'results' || service.type === 'bills' ? 'Select Item' : 'Select Bundle'}</FormLabel>
+                <FormLabel>{service.type === 'results' ? 'Checker Type' : 'Select Bundle'}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger disabled={network === 'Unknown' && service.requiresPhone}>
-                      <SelectValue placeholder={network === 'Unknown' && service.requiresPhone ? 'Enter phone number first' : `Select a ${service.type === 'results' ? 'card' : 'bundle'}`} />
+                    <SelectTrigger className="h-12" disabled={network === 'Unknown' && service.requiresPhone}>
+                      <SelectValue placeholder={network === 'Unknown' && service.requiresPhone ? 'Enter valid number' : `Choose ${service.type === 'results' ? 'item' : 'bundle'}`} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {(productsToShow || []).map(product => (
                       <SelectItem key={product.id} value={product.id}>
-                        <div className="flex justify-between w-full">
+                        <div className="flex items-center justify-between min-w-[200px]">
                             <span>{product.name}</span>
-                            <span className="font-semibold text-primary/80 ml-4">GHS {product.price.toFixed(2)}</span>
+                            <span className="font-bold text-primary">GHS {product.price.toFixed(2)}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -258,7 +294,7 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
             control={form.control}
             name="paymentMethod"
             render={({ field }) => (
-              <FormItem className="space-y-3">
+              <FormItem className="space-y-4">
                 <FormLabel>Payment Method</FormLabel>
                 <FormControl>
                   <RadioGroup
@@ -268,16 +304,16 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
                   >
                     <FormItem>
                       <RadioGroupItem value="wallet" id="wallet" className="peer sr-only" />
-                      <Label htmlFor="wallet" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                        <Wallet className="mb-3 h-6 w-6" />
-                        Wallet
+                      <Label htmlFor="wallet" className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent/50 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
+                        <Wallet className="mb-2 h-6 w-6 text-primary" />
+                        <span className="font-semibold text-sm">Wallet</span>
                       </Label>
                     </FormItem>
                      <FormItem>
                       <RadioGroupItem value="momo" id="momo" className="peer sr-only" />
-                      <Label htmlFor="momo" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                        <CreditCard className="mb-3 h-6 w-6" />
-                        Mobile Money
+                      <Label htmlFor="momo" className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent/50 transition-all peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
+                        <CreditCard className="mb-2 h-6 w-6 text-primary" />
+                         <span className="font-semibold text-sm">MoMo</span>
                       </Label>
                     </FormItem>
                   </RadioGroup>
@@ -287,8 +323,8 @@ export default function PurchaseForm({ service, preselectedNetwork }: PurchaseFo
             )}
           />
 
-        <Button type="submit" className="w-full font-bold text-lg h-12 bg-primary text-primary-foreground hover:bg-primary/90">
-          Pay Now
+        <Button type="submit" className="w-full font-bold text-lg h-14 bg-primary text-primary-foreground shadow-lg hover:shadow-primary/20 transition-all">
+          Authorize GHS {form.watch('amount') || productsToShow.find(p => p.id === form.watch('productId'))?.price || 0}
         </Button>
       </form>
     </Form>
