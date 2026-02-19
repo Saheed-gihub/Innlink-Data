@@ -17,40 +17,34 @@ export default function PurchasePage() {
   const preselectedNetwork = searchParams.get('network');
   
   if (!serviceType || !SERVICES[serviceType]) {
-    // Option 1: Show a loading state while params are not yet available
     return <Loading />;
-    // Option 2: Or redirect if the service is invalid after checking
-    // if (router.isReady) { // Make sure router is ready before redirecting
-    //   router.push('/dashboard');
-    // }
-    // return <Loading />; // Still show loading while router is preparing
   }
 
   const service = SERVICES[serviceType];
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="flex min-h-screen w-full flex-col bg-background mesh-gradient">
        <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft />
+            <div className="container flex h-16 sm:h-20 items-center justify-between">
+                <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl h-10 w-10 sm:h-12 sm:w-12">
+                    <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                     <span className="sr-only">Back</span>
                 </Button>
-                <h1 className="font-headline text-lg font-bold">{service.title}</h1>
-                <div className="w-8"></div>
+                <h1 className="font-headline text-lg sm:text-xl font-bold">{service.title}</h1>
+                <div className="w-10 sm:w-12"></div>
             </div>
         </header>
-        <main className="flex-1 pb-24 md:pb-4">
-            <div className="container mx-auto max-w-md p-4 sm:p-6">
-                <Card>
-                    <CardHeader className="text-center">
-                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                            <service.icon className="h-8 w-8" />
+        <main className="flex-1 pb-24 md:pb-8 flex items-start sm:items-center justify-center">
+            <div className="container mx-auto max-w-md md:max-w-lg p-4 sm:p-6 animate-in zoom-in-95 duration-500">
+                <Card className="glass-card shadow-2xl border-primary/10 overflow-hidden">
+                    <CardHeader className="text-center pb-2">
+                        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary shadow-inner rotate-3 hover:rotate-0 transition-transform">
+                            <service.icon className="h-10 w-10" />
                         </div>
-                        <CardTitle className="font-headline text-2xl">{service.title}</CardTitle>
-                        <CardDescription>{service.description}</CardDescription>
+                        <CardTitle className="font-headline text-2xl sm:text-3xl font-bold tracking-tight">{service.title}</CardTitle>
+                        <CardDescription className="text-sm sm:text-base font-medium text-muted-foreground/80">{service.description}</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <PurchaseForm service={service} preselectedNetwork={preselectedNetwork} />
                     </CardContent>
                 </Card>
