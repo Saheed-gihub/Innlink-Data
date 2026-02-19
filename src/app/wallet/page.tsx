@@ -1,12 +1,16 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, ArrowDownLeft, Plus, ArrowRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Plus, ArrowRight, LoaderCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const walletTransactions = [
   { id: 1, type: 'Data Purchase (MTN)', amount: -20.00, time: '10:45 AM', status: 'debit' },
@@ -17,12 +21,36 @@ const walletTransactions = [
 ];
 
 export default function WalletPage() {
+    const { toast } = useToast();
+    const [isFunding, setIsFunding] = useState(false);
+    const [fundOpen, setFundOpen] = useState(false);
+
+    const handleFundWallet = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsFunding(true);
+        setTimeout(() => {
+            setIsFunding(false);
+            setFundOpen(false);
+            toast({
+                title: "Funding Initiated",
+                description: "Check your phone for the MoMo prompt to complete payment.",
+            });
+        }, 1500);
+    };
+
+    const handleWithdraw = () => {
+        toast({
+            title: "Withdrawal System",
+            description: "Please complete your KYC in the Profile section before making a withdrawal.",
+        });
+    };
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-background">
             <Header />
             <main className="flex-1 pb-24 md:pb-4">
                 <div className="container mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
-                    <Card className="shadow-lg">
+                    <Card className="shadow-lg border-primary/20 bg-primary/5">
                         <CardHeader>
                             <CardTitle className="font-headline text-lg text-muted-foreground">My Wallet</CardTitle>
                             <CardDescription>Your current account balance.</CardDescription>
@@ -31,8 +59,39 @@ export default function WalletPage() {
                              <p className="font-headline text-5xl font-bold text-foreground">GHS 125.50</p>
                         </CardContent>
                         <CardFooter className="gap-4">
-                            <Button className="flex-1 gap-2"><Plus /> Fund Wallet</Button>
-                            <Button variant="outline" className="flex-1 gap-2"><ArrowRight /> Withdraw</Button>
+                            <Dialog open={fundOpen} onOpenChange={setFundOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="flex-1 gap-2 rounded-xl h-12">
+                                        <Plus className="h-5 w-5" /> Fund Wallet
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px] rounded-3xl">
+                                    <DialogHeader>
+                                        <DialogTitle>Add Funds</DialogTitle>
+                                        <DialogDescription>
+                                            Enter the amount you'd like to add to your wallet via Mobile Money.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleFundWallet} className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="amount">Amount (GHS)</Label>
+                                            <Input id="amount" type="number" placeholder="0.00" required />
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" className="w-full" disabled={isFunding}>
+                                                {isFunding ? <LoaderCircle className="animate-spin" /> : "Initiate Payment"}
+                                            </Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                            <Button 
+                                variant="outline" 
+                                className="flex-1 gap-2 rounded-xl h-12 border-primary/20"
+                                onClick={handleWithdraw}
+                            >
+                                <ArrowRight className="h-5 w-5" /> Withdraw
+                            </Button>
                         </CardFooter>
                     </Card>
 

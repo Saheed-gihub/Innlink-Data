@@ -5,14 +5,14 @@ import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import ServiceGrid from '@/components/service-grid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Wifi, Smartphone, GraduationCap, ArrowUp, ArrowDown, CreditCard, Send, Plus } from 'lucide-react';
+import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import PromoBanner from '@/components/promo-banner';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 const recentTransactions = [
   { id: 1, type: 'Data Purchase', icon: Wifi, amount: '- GHS 20.00', time: '10:45 AM', status: 'debit', iconBg: 'bg-blue-500/10 text-blue-400' },
@@ -23,7 +23,15 @@ const recentTransactions = [
 
 export default function DashboardPage() {
   const [walletBalance] = useState(125.50);
+  const { toast } = useToast();
   const adminAvatar = PlaceHolderImages.find(p => p.id === 'admin-avatar');
+
+  const handleAction = (action: string) => {
+    toast({
+      title: `${action} Initialized`,
+      description: `The ${action.toLowerCase()} process has started. Redirecting...`,
+    });
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background mesh-gradient">
@@ -68,15 +76,25 @@ export default function DashboardPage() {
                   </div>
                   
                   <div className="grid grid-cols-3 gap-3">
-                    <Button className="h-20 flex-col gap-2 rounded-2xl bg-primary text-primary-foreground hover:scale-105 transition-transform">
-                        <Plus className="h-5 w-5" />
-                        <span className="text-xs font-bold">Top up</span>
-                    </Button>
-                    <Button variant="secondary" className="h-20 flex-col gap-2 rounded-2xl bg-card/50 backdrop-blur-md border border-white/5 hover:scale-105 transition-transform">
+                    <Link href="/wallet" className="contents">
+                      <Button className="h-20 flex-col gap-2 rounded-2xl bg-primary text-primary-foreground hover:scale-105 transition-transform">
+                          <Plus className="h-5 w-5" />
+                          <span className="text-xs font-bold">Top up</span>
+                      </Button>
+                    </Link>
+                    <Button 
+                      onClick={() => handleAction('Transfer')}
+                      variant="secondary" 
+                      className="h-20 flex-col gap-2 rounded-2xl bg-card/50 backdrop-blur-md border border-white/5 hover:scale-105 transition-transform"
+                    >
                         <Send className="h-5 w-5 text-accent" />
                         <span className="text-xs font-bold">Transfer</span>
                     </Button>
-                    <Button variant="secondary" className="h-20 flex-col gap-2 rounded-2xl bg-card/50 backdrop-blur-md border border-white/5 hover:scale-105 transition-transform">
+                    <Button 
+                      onClick={() => handleAction('Withdraw')}
+                      variant="secondary" 
+                      className="h-20 flex-col gap-2 rounded-2xl bg-card/50 backdrop-blur-md border border-white/5 hover:scale-105 transition-transform"
+                    >
                         <CreditCard className="h-5 w-5 text-purple-400" />
                         <span className="text-xs font-bold">Withdraw</span>
                     </Button>
@@ -108,23 +126,25 @@ export default function DashboardPage() {
                 {recentTransactions.map((tx, idx) => {
                   const Icon = tx.icon;
                   return (
-                    <div key={tx.id} className={cn("flex items-center justify-between group cursor-pointer", idx !== recentTransactions.length - 1 && "pb-4 border-b border-white/5")}>
-                      <div className="flex items-center gap-4">
-                        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-all group-hover:scale-110", tx.iconBg)}>
-                          <Icon className="h-6 w-6" />
+                    <Link href="/transactions" key={tx.id} className="contents">
+                      <div className={cn("flex items-center justify-between group cursor-pointer", idx !== recentTransactions.length - 1 && "pb-4 border-b border-white/5")}>
+                        <div className="flex items-center gap-4">
+                          <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-all group-hover:scale-110", tx.iconBg)}>
+                            <Icon className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm">{tx.type}</p>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{tx.time}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-sm">{tx.type}</p>
-                          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{tx.time}</p>
-                        </div>
+                         <div className="text-right">
+                            <p className={cn("font-bold font-mono", tx.status === 'credit' ? 'text-green-400' : 'text-foreground')}>
+                              {tx.amount}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Successful</p>
+                         </div>
                       </div>
-                       <div className="text-right">
-                          <p className={cn("font-bold font-mono", tx.status === 'credit' ? 'text-green-400' : 'text-foreground')}>
-                            {tx.amount}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">Successful</p>
-                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>
