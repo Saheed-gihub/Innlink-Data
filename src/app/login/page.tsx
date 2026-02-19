@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { PanelTopOpen, Lock, Smartphone, ChevronRight, LoaderCircle } from 'lucide-react';
+import { PanelTopOpen, Lock, Smartphone, ChevronRight, LoaderCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
+import { detectNetwork } from '@/lib/networks';
+import { useToast } from '@/hooks/use-toast';
 
 // Dummy social icons
 const GoogleIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.75 8.36,4.73 12.19,4.73C14.03,4.73 15.6,5.36 16.81,6.45L18.83,4.55C17.02,2.77 14.81,2 12.19,2C6.42,2 2.03,6.8 2.03,12C2.03,17.2 6.42,22 12.19,22C17.6,22 21.74,18.33 21.74,12.33C21.74,11.77 21.52,11.44 21.35,11.1Z"></path></svg>;
@@ -17,12 +19,40 @@ const AppleIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill=
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
+  const { toast } = useToast();
   const router = useRouter();
 
-  const handleVerify = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const network = detectNetwork(phone);
+  const isPhoneValid = phone.length === 10 && network !== 'Unknown';
+  const isOtpValid = otp.length === 4;
+
+  const handleSendOtp = () => {
+    if (phone.length === 10 && network === 'Unknown') {
+        setPhoneError('Please enter a valid Ghana network number (MTN, Telecel, or AirtelTigo).');
+        return;
+    }
+    
+    if (phone.length !== 10) {
+        setPhoneError('Phone number must be exactly 10 digits.');
+        return;
+    }
+
+    setPhoneError('');
+    setOtpSent(true);
+    toast({
+        title: "OTP Sent",
+        description: `A 4-digit verification code has been sent to ${phone}.`,
+    });
+  };
+
+  const handleVerify = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isOtpValid) return;
+
     setIsVerifying(true);
     setTimeout(() => {
         router.push('/dashboard');
@@ -30,7 +60,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 mesh-gradient">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
             <Link href="/" className="flex items-center gap-2 mb-4">
@@ -39,36 +69,73 @@ export default function LoginPage() {
             </Link>
           <h1 className="text-2xl font-semibold tracking-tight font-headline">Welcome Back</h1>
           <p className="text-sm text-muted-foreground">
-            {otpSent ? 'Enter the OTP sent to your phone' : 'Sign in to access your account'}
+            {otpSent ? 'Enter the 4-digit OTP sent to your phone' : 'Sign in with your phone number'}
           </p>
         </div>
         
-        <Card>
+        <Card className="glass-card border-white/5">
             <CardContent className="p-6">
                 {!otpSent ? (
                     <div className="space-y-4">
-                        <div className="relative">
-                            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input 
-                                id="phone" 
-                                type="tel" 
-                                placeholder="Phone Number" 
-                                className="pl-10"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                            />
+                        <div className="space-y-2">
+                            <div className="relative">
+                                <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input 
+                                    id="phone" 
+                                    type="tel" 
+                                    placeholder="024 123 4567" 
+                                    className="pl-10 h-12"
+                                    value={phone}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        setPhone(val);
+                                        if (phoneError) setPhoneError('');
+                                    }}
+                                />
+                            </div>
+                            {phoneError && (
+                                <div className="flex items-center gap-2 text-destructive text-xs mt-1 animate-in fade-in slide-in-from-top-1">
+                                    <AlertCircle className="h-3 w-3" />
+                                    <span>{phoneError}</span>
+                                </div>
+                            )}
                         </div>
-                        <Button onClick={() => setOtpSent(true)} className="w-full font-semibold" disabled={phone.length < 10}>
+                        <Button 
+                            onClick={handleSendOtp} 
+                            className="w-full font-bold h-12 rounded-xl" 
+                            disabled={phone.length < 10}
+                        >
                             Send OTP
                         </Button>
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        <div className="relative">
-                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input id="otp" type="text" placeholder="Enter 6-digit OTP" maxLength={6} className="pl-10 tracking-[0.75em] text-center"/>
+                        <div className="space-y-2">
+                            <div className="relative">
+                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input 
+                                    id="otp" 
+                                    type="text" 
+                                    placeholder="Enter 4-digit OTP" 
+                                    maxLength={4} 
+                                    className="pl-10 tracking-[0.75em] text-center h-12 font-bold"
+                                    value={otp}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        setOtp(val);
+                                    }}
+                                />
+                            </div>
+                            {!isOtpValid && otp.length > 0 && (
+                                <p className="text-[10px] text-center text-muted-foreground">OTP must be exactly 4 digits</p>
+                            )}
                         </div>
-                        <Button onClick={handleVerify} className="w-full font-semibold" disabled={isVerifying}>
+                        <Button 
+                            onClick={handleVerify} 
+                            className="w-full font-bold h-12 rounded-xl" 
+                            disabled={isVerifying || !isOtpValid}
+                        >
                             {isVerifying ? (
                                 <LoaderCircle className="animate-spin" />
                             ) : (
@@ -78,22 +145,28 @@ export default function LoginPage() {
                                 </>
                             )}
                         </Button>
-                        <Button variant="link" size="sm" onClick={() => { setOtpSent(false); setIsVerifying(false); }} className="w-full" disabled={isVerifying}>
+                        <Button 
+                            variant="link" 
+                            size="sm" 
+                            onClick={() => { setOtpSent(false); setOtp(''); setIsVerifying(false); }} 
+                            className="w-full" 
+                            disabled={isVerifying}
+                        >
                             Change number
                         </Button>
                     </div>
                 )}
                 
                 <Separator className="my-6">
-                    <span className="bg-card px-2 text-xs text-muted-foreground">OR</span>
+                    <span className="bg-card px-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">OR</span>
                 </Separator>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2 rounded-xl border-white/5 bg-muted/20">
                         <GoogleIcon />
                         Google
                     </Button>
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2 rounded-xl border-white/5 bg-muted/20">
                         <AppleIcon />
                         Apple
                     </Button>
@@ -101,7 +174,7 @@ export default function LoginPage() {
             </CardContent>
         </Card>
 
-        <p className="px-8 text-center text-xs text-muted-foreground">
+        <p className="px-8 text-center text-[10px] leading-relaxed text-muted-foreground">
           By continuing, you agree to our{' '}
           <Link href="#" className="underline underline-offset-4 hover:text-primary">
             Terms of Service
