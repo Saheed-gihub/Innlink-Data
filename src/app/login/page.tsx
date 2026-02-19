@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PanelTopOpen, Lock, Smartphone, ChevronRight, LoaderCircle, AlertCircle } from 'lucide-react';
@@ -24,6 +24,13 @@ export default function LoginPage() {
   const [otpError, setOtpError] = useState('');
   const { toast } = useToast();
   const router = useRouter();
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true') {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const network = detectNetwork(phone);
   const isPhoneFormatValid = phone.length === 10;
@@ -61,6 +68,9 @@ export default function LoginPage() {
     
     // Simulate verification delay
     setTimeout(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('isLoggedIn', 'true');
+        }
         router.push('/dashboard');
     }, 1500);
   }

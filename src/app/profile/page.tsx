@@ -8,18 +8,26 @@ import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut } from 'l
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
     const { theme, setTheme } = useTheme();
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleFeatureClick = (title: string) => {
         toast({
             title: title,
             description: `Accessing ${title.toLowerCase()} settings...`,
         });
+    };
+
+    const handleLogout = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('isLoggedIn');
+        }
+        router.push('/login');
     };
 
     return (
@@ -88,12 +96,14 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                     
-                    <Link href="/login">
-                        <Button variant="ghost" className="w-full justify-start gap-4 text-destructive hover:text-destructive hover:bg-destructive/5 text-base p-6 h-auto rounded-3xl">
-                            <LogOut className="h-5 w-5"/>
-                            Logout
-                        </Button>
-                    </Link>
+                    <Button 
+                        variant="ghost" 
+                        onClick={handleLogout}
+                        className="w-full justify-start gap-4 text-destructive hover:text-destructive hover:bg-destructive/5 text-base p-6 h-auto rounded-3xl"
+                    >
+                        <LogOut className="h-5 w-5"/>
+                        Logout
+                    </Button>
                 </div>
             </main>
             <BottomNav />

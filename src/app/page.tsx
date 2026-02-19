@@ -8,7 +8,14 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push('/login');
+      // Check if the user is already "logged in" in this browser
+      const isLoggedIn = typeof window !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true';
+      
+      if (isLoggedIn) {
+        router.push('/dashboard');
+      } else {
+        router.push('/login');
+      }
     }, 2500);
 
     return () => clearTimeout(timer);
