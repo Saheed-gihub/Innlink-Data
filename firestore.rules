@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Innlink Data Security Rules
+     *
+     * Core Philosophy:
+     * This ruleset implements a dual-layer security model: Strict User Ownership for private data and 
+     * Role-Based Access Control (RBAC) via an admin collection for system-wide management. 
+     * All user-specific data is nested under the user's path to ensure authorization independence.
+     *
+     * Data Structure:
+     * - /users/{userId}: Primary user profiles.
+     * - /users/{userId}/transactions: User-specific purchase history.
+     * - /users/{userId}/wallet: User-specific financial data.
+     * - /network_providers, /data_bundles, /utility_services: Publicly accessible product catalogs.
+     * - /result_checker_cards: Restricted inventory managed solely by administrators.
+     *
+     * Key Security Decisions:
+     * - Ownership: Validated primarily through the {userId} path wildcard.
+     * - Administrators: Identified by the presence of a document in the /roles_admin/{uid} collection.
+     * - Prototyping Mode: Authorization is strictly enforced (who can access), but data schema validation 
+     *   is minimized to allow for rapid UI/UX iteration.
+     * - Immutability: Critical relational fields (like userId) are protected against modification.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user has administrative privileges via the roles_admin collection. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /** @description Checks if the authenticated user's UID matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Combined check for owner or administrator access. */
+    function isOwnerOrAdmin(userId) {
+      return isOwner(userId) || isAdmin();
+    }
+
+    /** @description Ensures the document exists and the user is the owner or an admin. Used for updates and deletes. */
+    function isExistingOwnerOrAdmin(userId) {
+      return resource != null && (isOwner(userId) || isAdmin());
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Administrative role markers. Document existence grants admin rights.
+     * @path /roles_admin/{adminId}
+     * @allow (get) Any authenticated user can check if they are an admin.
+     * @deny (create, update, delete) Restricted to manual intervention or system-level processes for security.
+     * @principle DBAC (Database Access Control) - Existence over content.
+     */
+    match /roles_admin/{adminId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description User profile storage. Users can create their own profile and read/update it.
+     * @path /users/{userId}
+     * @allow (create) If the user's auth UID matches the document ID and internal ID field.
+     * @deny (update) If an unauthorized user tries to modify someone else's profile.
+     * @principle Path-based ownership and self-creation validation.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwnerOrAdmin(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwnerOrAdmin(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin();
+
+      /**
+       * @description Records of user purchases and payments.
+       * @path /users/{userId}/transactions/{transactionId}
+       * @allow (list) The owner can view their own history.
+       * @deny (create) If the internal 'userId' field does not match the path.
+       * @principle Authorization independence via path nesting.
+       */
+      match /transactions/{transactionId} {
+        allow get, list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isAdmin();
+      }
+
+      /**
+       * @description User's prepaid wallet details.
+       * @path /users/{userId}/wallet
+       * @allow (get) The owner or an admin checking balance.
+       * @deny (update) If the owner tries to change the linked userId.
+       * @principle Relational integrity for financial entities.
+       */
+      match /wallet {
+        allow get: if isOwnerOrAdmin(userId);
+        allow list: if isOwnerOrAdmin(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwnerOrAdmin(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isAdmin();
+
+        /**
+         * @description Individual debit/credit events in the wallet.
+         * @path /users/{userId}/wallet/wallet_transactions/{walletTransactionId}
+         */
+        match /wallet_transactions/{walletTransactionId} {
+          allow get, list: if isOwnerOrAdmin(userId);
+          allow create: if isOwner(userId);
+          allow update, delete: if isAdmin();
+        }
+      }
+    }
+
+    /**
+     * @description Public catalog of network providers (MTN, ECG, etc.).
+     * @path /network_providers/{networkProviderId}
+     * @allow (get, list) All users for service discovery.
+     * @deny (write) Any non-administrator.
+     * @principle Public discovery with administrative control.
+     */
+    match /network_providers/{networkProviderId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Catalog of available data bundle products.
+     * @path /data_bundles/{dataBundleId}
+     * @allow (get, list) All users.
+     */
+    match /data_bundles/{dataBundleId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Catalog of result checker types (e.g., WASSCE).
+     * @path /result_checker_products/{resultCheckerProductId}
+     * @allow (get, list) All users.
+     */
+    match /result_checker_products/{resultCheckerProductId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Inventory of unique result checker cards (PINs/Serials).
+     * @path /result_checker_cards/{resultCheckerCardId}
+     * @allow (all) Restricted strictly to administrators for stock management.
+     * @deny (all) All standard users; sensitive data is delivered via transactions.
+     * @principle Structural segregation of sensitive inventory.
+     */
+    match /result_checker_cards/{resultCheckerCardId} {
+      allow get, list, create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Catalog of utility payment and airtime services.
+     * @path /utility_services/{utilityServiceId}
+     * @allow (get, list) All users.
+     */
+    match /utility_services/{utilityServiceId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+  }
+}

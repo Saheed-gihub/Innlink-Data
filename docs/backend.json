@@ -1,0 +1,649 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user registered in the Innlink Data application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's primary phone number, used for communication and as a key identifier."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for notifications and communication.",
+          "format": "email"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "phoneNumber",
+        "email",
+        "fullName",
+        "createdAt"
+      ]
+    },
+    "NetworkProvider": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NetworkProvider",
+      "type": "object",
+      "description": "Represents an external service provider such as a telecommunication network, utility provider, or result checker authority.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NetworkProvider entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The official name of the network or provider (e.g., 'MTN', 'ECG', 'WAEC')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The category of the provider (e.g., 'Telecom', 'Utility', 'ResultChecker')."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the provider's logo image.",
+          "format": "uri"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the provider is currently active and available for transactions."
+        },
+        "apiEndpoint": {
+          "type": "string",
+          "description": "The base API endpoint for this provider, used for integration and monitoring (not directly exposed to users).",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "isActive"
+      ]
+    },
+    "DataBundle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DataBundle",
+      "type": "object",
+      "description": "Represents a specific data bundle product offered by a telecommunication network provider.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DataBundle entity."
+        },
+        "networkProviderId": {
+          "type": "string",
+          "description": "Reference to the NetworkProvider offering this data bundle. (Relationship: NetworkProvider 1:N DataBundle)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The descriptive name of the data bundle (e.g., '500MB Daily Bundle')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the data bundle features and terms."
+        },
+        "price": {
+          "type": "number",
+          "description": "The current selling price of the data bundle in local currency."
+        },
+        "dataVolumeMB": {
+          "type": "number",
+          "description": "The amount of data provided by the bundle in megabytes (MB)."
+        },
+        "validityDays": {
+          "type": "number",
+          "description": "The number of days the data bundle is valid for from the time of activation."
+        },
+        "productCode": {
+          "type": "string",
+          "description": "Internal product code used for API integration with the network provider to identify this specific bundle."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the data bundle is currently active and available for purchase."
+        }
+      },
+      "required": [
+        "id",
+        "networkProviderId",
+        "name",
+        "price",
+        "dataVolumeMB",
+        "validityDays",
+        "productCode",
+        "isActive"
+      ]
+    },
+    "ResultCheckerProduct": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ResultCheckerProduct",
+      "type": "object",
+      "description": "Represents a category of result checker card available for purchase (e.g., WASSCE, BECE).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ResultCheckerProduct entity."
+        },
+        "networkProviderId": {
+          "type": "string",
+          "description": "Reference to the NetworkProvider (e.g., WAEC) offering this result checker product. (Relationship: NetworkProvider 1:N ResultCheckerProduct)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the result checker product (e.g., 'WASSCE Checker', 'BECE Checker')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the result checker product."
+        },
+        "price": {
+          "type": "number",
+          "description": "The current selling price of a single result checker card for this product type."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if this result checker product is currently available for purchase."
+        }
+      },
+      "required": [
+        "id",
+        "networkProviderId",
+        "name",
+        "price",
+        "isActive"
+      ]
+    },
+    "ResultCheckerCard": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ResultCheckerCard",
+      "type": "object",
+      "description": "Represents an individual, unique result checker card (PIN/serial) held in stock or purchased by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ResultCheckerCard entity."
+        },
+        "resultCheckerProductId": {
+          "type": "string",
+          "description": "Reference to the type of result checker product this card belongs to. (Relationship: ResultCheckerProduct 1:N ResultCheckerCard)"
+        },
+        "pin": {
+          "type": "string",
+          "description": "The unique PIN for accessing the result. (Sensitive data, consider encryption at rest)."
+        },
+        "serialNumber": {
+          "type": "string",
+          "description": "The unique serial number associated with the result checker card."
+        },
+        "isUsed": {
+          "type": "boolean",
+          "description": "Indicates if the card has been purchased and delivered to a user."
+        },
+        "purchasedTransactionId": {
+          "type": "string",
+          "description": "Optional reference to the Transaction through which this card was purchased and delivered. Null if not yet purchased. (Relationship: Transaction 1:N ResultCheckerCard via Transaction.resultCheckerCardIds)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the result checker card was added to stock.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the result checker card's status was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "resultCheckerProductId",
+        "pin",
+        "serialNumber",
+        "isUsed",
+        "createdAt"
+      ]
+    },
+    "UtilityService": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UtilityService",
+      "type": "object",
+      "description": "Represents a specific utility payment or airtime top-up service offered by a network provider.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UtilityService entity."
+        },
+        "networkProviderId": {
+          "type": "string",
+          "description": "Reference to the NetworkProvider (e.g., ECG, Ghana Water, MTN) offering this utility service. (Relationship: NetworkProvider 1:N UtilityService)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the utility service (e.g., 'ECG Prepaid Payment', 'Ghana Water Bill', 'MTN Airtime Top-up')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The category of the utility service (e.g., 'electricity', 'water', 'airtime')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the utility service."
+        },
+        "price": {
+          "type": "number",
+          "description": "The standard or base price for this service, if applicable (e.g., a service charge). For airtime, this might represent a minimum top-up amount or zero if user specifies."
+        },
+        "productCode": {
+          "type": "string",
+          "description": "Internal product code used for API integration with the utility provider to identify this service."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if this utility service is currently active and available."
+        }
+      },
+      "required": [
+        "id",
+        "networkProviderId",
+        "name",
+        "type",
+        "productCode",
+        "isActive"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a single purchase or payment transaction initiated by a user, which may be queued for processing.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who initiated the transaction. (Relationship: User 1:N Transaction)"
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "The type of transaction (e.g., 'DataBundlePurchase', 'ResultCheckerPurchase', 'AirtimeTopUp', 'BillPayment', 'WalletTopUp')."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The total monetary amount of the transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the transaction (e.g., 'GHS')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the transaction (e.g., 'Pending', 'Queued', 'Processing', 'Completed', 'Failed', 'Refunded')."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The method used for payment (e.g., 'MoMo', 'PrepaidWallet')."
+        },
+        "networkTransactionId": {
+          "type": "string",
+          "description": "The transaction ID provided by the external network API after successful processing (if applicable)."
+        },
+        "targetPhoneNumber": {
+          "type": "string",
+          "description": "The phone number to which data/airtime was sent or for which a bill was paid."
+        },
+        "recipientEmail": {
+          "type": "string",
+          "description": "The email address where result checker PIN/serial was sent (if applicable).",
+          "format": "email"
+        },
+        "recipientPhoneNumber": {
+          "type": "string",
+          "description": "The phone number where result checker PIN/serial was sent via SMS (if applicable)."
+        },
+        "productReferenceId": {
+          "type": "string",
+          "description": "Reference to the specific product or service purchased (e.g., DataBundle ID, ResultCheckerProduct ID, UtilityService ID). (Relationship: Transaction 1:1 DataBundle/ResultCheckerProduct/UtilityService)"
+        },
+        "resultCheckerCardIds": {
+          "type": "array",
+          "description": "References to individual ResultCheckerCard entities purchased in this transaction. (Relationship: Transaction 1:N ResultCheckerCard)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the transaction was initiated.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the transaction's status was last updated.",
+          "format": "date-time"
+        },
+        "failureReason": {
+          "type": "string",
+          "description": "A description of the reason for transaction failure, if applicable."
+        },
+        "queueAttempts": {
+          "type": "number",
+          "description": "The number of attempts made to fulfill a queued transaction."
+        },
+        "nextAttemptAt": {
+          "type": "string",
+          "description": "Timestamp for the next scheduled attempt to fulfill a queued transaction.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "transactionType",
+        "amount",
+        "currency",
+        "status",
+        "paymentMethod",
+        "createdAt"
+      ]
+    },
+    "Wallet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Wallet",
+      "type": "object",
+      "description": "Represents a user's in-app prepaid wallet for faster checkout.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Wallet entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this wallet. (Relationship: User 1:1 Wallet)"
+        },
+        "balance": {
+          "type": "number",
+          "description": "The current monetary balance in the wallet."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the wallet balance (e.g., 'GHS')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the wallet was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the wallet's balance was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "balance",
+        "currency",
+        "createdAt"
+      ]
+    },
+    "WalletTransaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WalletTransaction",
+      "type": "object",
+      "description": "Represents a specific debit or credit event within a user's in-app wallet.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WalletTransaction entity."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Reference to the Wallet associated with this transaction. (Relationship: Wallet 1:N WalletTransaction)"
+        },
+        "transactionId": {
+          "type": "string",
+          "description": "Optional reference to a main Transaction entity if this wallet transaction is part of a larger service purchase/top-up. (Relationship: WalletTransaction 1:1 Transaction)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of wallet transaction (e.g., 'Credit' for top-up, 'Debit' for payment)."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the wallet transaction."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the wallet transaction (e.g., 'Wallet Top-up via MoMo', 'Payment for 500MB Data Bundle')."
+        },
+        "balanceBefore": {
+          "type": "number",
+          "description": "The wallet balance before this transaction occurred."
+        },
+        "balanceAfter": {
+          "type": "number",
+          "description": "The wallet balance after this transaction occurred."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the wallet transaction occurred.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "walletId",
+        "type",
+        "amount",
+        "description",
+        "balanceBefore",
+        "balanceAfter",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. Access is restricted to the owning user or administrators.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{adminId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Grants administrative privileges. Document existence indicates the user is an administrator. Access is restricted to administrators only, used for Database Access Control (DBAC).",
+          "params": [
+            {
+              "name": "adminId",
+              "description": "The unique identifier of the user designated as an administrator."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/network_providers/{networkProviderId}",
+        "definition": {
+          "entityName": "NetworkProvider",
+          "schema": {
+            "$ref": "#/backend/entities/NetworkProvider"
+          },
+          "description": "Stores details about various external service providers (e.g., MTN, ECG). Publicly readable for all users. Write access is restricted to administrators only.",
+          "params": [
+            {
+              "name": "networkProviderId",
+              "description": "The unique identifier for a network or utility provider."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/data_bundles/{dataBundleId}",
+        "definition": {
+          "entityName": "DataBundle",
+          "schema": {
+            "$ref": "#/backend/entities/DataBundle"
+          },
+          "description": "Catalog of available data bundles from different network providers. Publicly readable for product discovery by all users. Write access is restricted to administrators only.",
+          "params": [
+            {
+              "name": "dataBundleId",
+              "description": "The unique identifier for a specific data bundle product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/result_checker_products/{resultCheckerProductId}",
+        "definition": {
+          "entityName": "ResultCheckerProduct",
+          "schema": {
+            "$ref": "#/backend/entities/ResultCheckerProduct"
+          },
+          "description": "Catalog of available result checker product types (e.g., WASSCE). Publicly readable for product discovery by all users. Write access is restricted to administrators only.",
+          "params": [
+            {
+              "name": "resultCheckerProductId",
+              "description": "The unique identifier for a specific result checker product type."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/result_checker_cards/{resultCheckerCardId}",
+        "definition": {
+          "entityName": "ResultCheckerCard",
+          "schema": {
+            "$ref": "#/backend/entities/ResultCheckerCard"
+          },
+          "description": "Inventory of individual result checker cards (PINs/serials). This is highly sensitive data, accessible only by administrators for stock management. Users do not directly access these documents; card details are delivered via transactions.",
+          "params": [
+            {
+              "name": "resultCheckerCardId",
+              "description": "The unique identifier for an individual result checker card."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/utility_services/{utilityServiceId}",
+        "definition": {
+          "entityName": "UtilityService",
+          "schema": {
+            "$ref": "#/backend/entities/UtilityService"
+          },
+          "description": "Catalog of available utility and airtime top-up services. Publicly readable for service discovery by all users. Write access is restricted to administrators only.",
+          "params": [
+            {
+              "name": "utilityServiceId",
+              "description": "The unique identifier for a specific utility or airtime top-up service."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Records individual purchase and payment transactions initiated by a specific user. Includes denormalized 'userId' in the path for authorization independence. Accessible by the owning user or administrators.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who initiated the transaction."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for a specific transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wallet",
+        "definition": {
+          "entityName": "Wallet",
+          "schema": {
+            "$ref": "#/backend/entities/Wallet"
+          },
+          "description": "Stores a user's in-app prepaid wallet details as a singleton subcollection. Includes denormalized 'userId' in the path for authorization independence. Accessible by the owning user or administrators.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this wallet."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wallet/wallet_transactions/{walletTransactionId}",
+        "definition": {
+          "entityName": "WalletTransaction",
+          "schema": {
+            "$ref": "#/backend/entities/WalletTransaction"
+          },
+          "description": "Records individual debit/credit events for a user's wallet. Includes denormalized 'userId' in the path for authorization independence. Accessible by the owning user or administrators.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user whose wallet this transaction pertains to."
+            },
+            {
+              "name": "walletTransactionId",
+              "description": "The unique identifier for a specific wallet transaction."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed following the core principles of Authorization Independence, Structural Segregation, and consistent Access Modeling. To achieve Authorization Independence (Mandate A), all user-specific data (Transactions, Wallets, Wallet Transactions) are stored within subcollections directly under a user's document, e.g., `/users/{userId}/transactions/{transactionId}`. This design ensures that security rules can directly compare `request.auth.uid` with the `{userId}` wildcard in the path, eliminating the need for expensive and potentially insecure `get()` calls to parent documents to determine ownership. This also facilitates atomic operations for creating user-owned resources.\n\nStructural Segregation (Mandate B) is implemented by separating data with different security postures into distinct top-level collections or subcollections. Publicly discoverable catalog data (Network Providers, Data Bundles, Result Checker Products, Utility Services) are placed in top-level collections (`/network_providers`, `/data_bundles`, etc.), which are public-read and admin-write. Sensitive stock data, like individual Result Checker Cards, is kept in a separate collection (`/result_checker_cards`) with strict admin-only access, completely segregated from user-facing data. Private user data is strictly confined to the `/users/{userId}/...` hierarchy.\n\nAccess Modeling (Mandate C) leverages path-based ownership for all user-owned data, creating a secure and intuitive hierarchy (`/users/{userId}/wallet`, `/users/{userId}/transactions`). Global roles are managed via a dedicated collection (`/roles_admin/{adminId}`), where the mere existence of a document for a `userId` grants administrative privileges (DBAC principle, 'Existence over Content').\n\nQuery-as-a-Policy (QAPs) is fully supported by this structure. For public data (e.g., `/data_bundles`), any authenticated user can perform `list` queries, and the rules will simply allow it. For user-specific data (e.g., `/users/{userId}/transactions`), a `list` query issued by `request.auth.uid` to `/users/{request.auth.uid}/transactions` will automatically adhere to the security rule that only allows access if `request.auth.uid == userId`, effectively returning only the current user's transactions without requiring additional filtering logic on the server or client, and without exposing other users' data. This is crucial for robust and efficient data retrieval while maintaining strict security."
+  }
+}
