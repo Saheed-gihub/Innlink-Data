@@ -178,7 +178,7 @@ export default function DashboardPage() {
                         </div>
                          <div className="text-right">
                             <p className={cn("font-bold font-mono md:text-lg", tx.status === 'credit' ? 'text-green-400' : 'text-foreground')}>
-                              {showBalance ? tx.amount : '••••'}
+                              {tx.amount}
                             </p>
                             <p className="text-[10px] md:text-xs text-muted-foreground">Successful</p>
                          </div>
@@ -195,3 +195,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

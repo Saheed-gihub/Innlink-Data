@@ -131,7 +131,7 @@ export default function WalletPage() {
                                                 </div>
                                             </div>
                                             <p className={cn("font-semibold font-mono text-lg", tx.status === 'credit' ? 'text-green-400' : 'text-red-400')}>
-                                                {showBalance ? `${tx.status === 'credit' ? '+' : '-'} GHS ${Math.abs(tx.amount).toFixed(2)}` : '••••'}
+                                                {tx.status === 'credit' ? '+' : '-'} GHS {Math.abs(tx.amount).toFixed(2)}
                                             </p>
                                         </div>
                                         {index < walletTransactions.length - 1 && <Separator />}
@@ -146,3 +146,4 @@ export default function WalletPage() {
         </div>
     )
 }
+
