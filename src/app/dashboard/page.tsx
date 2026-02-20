@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,13 +7,14 @@ import BottomNav from '@/components/bottom-nav';
 import ServiceGrid from '@/components/service-grid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus, UserCircle } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus, UserCircle, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PromoBanner from '@/components/promo-banner';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const recentTransactions = [
   { id: 1, type: 'Data Purchase', icon: Wifi, amount: '- GHS 20.00', time: '10:45 AM', status: 'debit', iconBg: 'bg-blue-500/10 text-blue-400' },
@@ -22,17 +24,16 @@ const recentTransactions = [
 ];
 
 export default function DashboardPage() {
-  const [walletBalance] = useState(125.50);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUserName(localStorage.getItem('userName'));
-      setUserAvatar(localStorage.getItem('userAvatar'));
-    }
-  }, []);
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
   const handleAction = (action: string) => {
     toast({
@@ -40,6 +41,8 @@ export default function DashboardPage() {
       description: `The ${action.toLowerCase()} process has started. Redirecting...`,
     });
   };
+
+  const walletBalance = 125.50; // In a real app, this would come from a wallet collection
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background mesh-gradient">
@@ -57,12 +60,16 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-8 md:mb-12">
                   <div className="space-y-1">
                     <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                      {userName ? 'Welcome Back,' : 'Get Started,'}
+                      {userProfile?.fullName ? 'Welcome Back,' : 'Get Started,'}
                     </p>
-                    <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-                      {userName || 'New User'} <span className="text-primary">👋</span>
-                    </h2>
-                    {!userName && (
+                    {isProfileLoading ? (
+                        <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+                    ) : (
+                        <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                            {userProfile?.fullName || 'Guest'} <span className="text-primary">👋</span>
+                        </h2>
+                    )}
+                    {!userProfile?.fullName && !isProfileLoading && (
                         <Link href="/profile" className="inline-block pt-2">
                             <Button variant="link" className="p-0 h-auto text-xs text-primary font-bold">
                                 Complete your profile to personalize your app
@@ -71,8 +78,8 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <Avatar className="h-12 w-12 sm:h-14 sm:w-14 md:h-20 md:w-20 ring-4 ring-primary/10 transition-all hover:scale-105">
-                    {userAvatar ? (
-                        <AvatarImage src={userAvatar} alt="User Avatar" />
+                    {userProfile?.avatarUrl ? (
+                        <AvatarImage src={userProfile.avatarUrl} alt="User Avatar" />
                     ) : (
                         <AvatarFallback className="bg-muted">
                             <UserCircle className="h-8 w-8 text-muted-foreground" />

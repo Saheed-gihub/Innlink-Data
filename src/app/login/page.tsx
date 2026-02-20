@@ -1,17 +1,19 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { PanelTopOpen, Lock, Smartphone, ChevronRight, LoaderCircle, AlertCircle } from 'lucide-react';
+import { PanelTopOpen, Lock, Smartphone, LoaderCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { detectNetwork } from '@/lib/networks';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useAuth, initiateAnonymousSignIn, useUser } from '@/firebase';
+import { doc, setDoc, getFirestore, serverTimestamp } from 'firebase/firestore';
 
-// Dummy social icons
 const GoogleIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.75 8.36,4.73 12.19,4.73C14.03,4.73 15.6,5.36 16.81,6.45L18.83,4.55C17.02,2.77 14.81,2 12.19,2C6.42,2 2.03,6.8 2.03,12C2.03,17.2 6.42,22 12.19,22C17.6,22 21.74,18.33 21.74,12.33C21.74,11.77 21.52,11.44 21.35,11.1Z"></path></svg>;
 const AppleIcon = () => <svg className="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M17.4,6.56C16.8,6.21 15.7,5.78 14.5,5.8c-1.3,0-2.3,0.7-3,0.7c-0.7,0-1.5-0.7-2.8-0.7c-1.2,0-2.3,0.4-3.1,1.1c-1.7,1.4-2.9,4.1-2.9,7.1c0,3.6,1.8,5.4,3.5,5.4c1.6,0,2.2-1.1,3.8-1.1c1.6,0,2.1,1.1,3.8,1.1c1.7,0,3.5-1.9,3.5-5.5C20.3,9.56,18.8,6.86,17.4,6.56z M13.5,4.66c0.6-0.8,1.1-1.9,0.9-3c-1.2,0.1-2.4,0.8-3.1,1.6c-0.6,0.8-1.1,1.9-0.9,3C11.6,6.36,12.8,5.56,13.5,4.66z"></path></svg>;
 
@@ -22,15 +24,18 @@ export default function LoginPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [otpError, setOtpError] = useState('');
+  
   const { toast } = useToast();
   const router = useRouter();
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
+  const db = getFirestore();
 
-  // Auto-redirect if already logged in
   useEffect(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true') {
+    if (!isUserLoading && user) {
       router.push('/dashboard');
     }
-  }, [router]);
+  }, [user, isUserLoading, router]);
 
   const network = detectNetwork(phone);
   const isPhoneFormatValid = phone.length === 10;
@@ -56,7 +61,7 @@ export default function LoginPage() {
     });
   };
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isOtpValid) {
         setOtpError('OTP must be exactly 4 digits.');
@@ -66,14 +71,26 @@ export default function LoginPage() {
     setIsVerifying(true);
     setOtpError('');
     
-    // Simulate verification delay
-    setTimeout(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('isLoggedIn', 'true');
-        }
-        router.push('/dashboard');
-    }, 1500);
+    try {
+        // Sign in anonymously to get a session
+        initiateAnonymousSignIn(auth);
+        
+        // The auth observer in useEffect will handle the redirect
+        // For the sake of the demo, we'll wait a brief moment
+        setTimeout(() => {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userPhone', phone);
+            }
+        }, 500);
+
+    } catch (error) {
+        setOtpError('Verification failed. Please try again.');
+        setIsVerifying(false);
+    }
   }
+
+  if (isUserLoading) return <div className="flex min-h-screen items-center justify-center"><LoaderCircle className="animate-spin" /></div>;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

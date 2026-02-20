@@ -1,10 +1,11 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle } from 'lucide-react';
+import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle, UserCircle } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -13,48 +14,75 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function ProfilePage() {
     const { theme, setTheme } = useTheme();
     const { toast } = useToast();
     const router = useRouter();
-    
-    const [userName, setUserName] = useState('');
-    const [userAvatar, setUserAvatar] = useState('');
+    const { user, isUserLoading: isAuthLoading } = useUser();
+    const firestore = useFirestore();
+
+    const userDocRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return doc(firestore, 'users', user.uid);
+    }, [firestore, user]);
+
+    const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
+
+    const [fullName, setFullName] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [accountDialogOpen, setAccountDialogOpen] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setUserName(localStorage.getItem('userName') || '');
-            setUserAvatar(localStorage.getItem('userAvatar') || '');
+        if (userProfile) {
+            setFullName(userProfile.fullName || '');
+            setAvatarUrl(userProfile.avatarUrl || '');
         }
-    }, []);
+    }, [userProfile]);
 
-    const handleUpdateAccount = (e: React.FormEvent) => {
+    const handleUpdateAccount = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user || !firestore) return;
+
         setIsSaving(true);
         
-        setTimeout(() => {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('userName', userName);
-                localStorage.setItem('userAvatar', userAvatar);
-            }
+        try {
+            await setDoc(doc(firestore, 'users', user.uid), {
+                id: user.uid,
+                fullName,
+                avatarUrl,
+                updatedAt: serverTimestamp(),
+                createdAt: userProfile?.createdAt || serverTimestamp(),
+            }, { merge: true });
+
             setIsSaving(false);
             setAccountDialogOpen(false);
             toast({
                 title: "Profile Updated",
-                description: "Your information has been saved successfully.",
+                description: "Your information has been saved to your account.",
             });
-        }, 1200);
+        } catch (error) {
+            setIsSaving(false);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Could not update profile.",
+            });
+        }
     };
 
     const handleLogout = () => {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('isLoggedIn');
         }
+        // In a real app, you'd also call auth.signOut()
         router.push('/login');
     };
+
+    if (isAuthLoading) return <div className="min-h-screen flex items-center justify-center"><LoaderCircle className="animate-spin" /></div>;
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-background">
@@ -63,12 +91,12 @@ export default function ProfilePage() {
                 <div className="container mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
                     <div className="flex items-center gap-4 bg-card/50 p-6 rounded-3xl border border-white/5">
                         <Avatar className="h-20 w-20 border-2 border-primary ring-4 ring-primary/10">
-                            <AvatarImage src={userAvatar || "https://i.pravatar.cc/150?u=a042581f4e29026704d"} />
-                            <AvatarFallback>{userName ? userName[0] : 'U'}</AvatarFallback>
+                            <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?u=default"} />
+                            <AvatarFallback>{fullName ? fullName[0] : 'U'}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h1 className="text-2xl font-bold font-headline">{userName || 'User'}</h1>
-                            <p className="text-muted-foreground">+233 24 123 4567</p>
+                            <h1 className="text-2xl font-bold font-headline">{fullName || 'New User'}</h1>
+                            <p className="text-muted-foreground">{user?.phoneNumber || 'Account Active'}</p>
                         </div>
                     </div>
 
@@ -95,14 +123,14 @@ export default function ProfilePage() {
                                             <div className="flex flex-col items-center gap-4">
                                                 <div className="relative group">
                                                     <Avatar className="h-24 w-24 border-2 border-primary/20">
-                                                        <AvatarImage src={userAvatar || "https://i.pravatar.cc/150?u=default"} />
-                                                        <AvatarFallback>U</AvatarFallback>
+                                                        <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?u=default"} />
+                                                        <AvatarFallback><UserCircle className="h-12 w-12" /></AvatarFallback>
                                                     </Avatar>
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                                         <Camera className="text-white h-6 w-6" />
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground">Click to upload photo (Simulator)</p>
+                                                <p className="text-xs text-muted-foreground">Account unique ID: {user?.uid.slice(0, 8)}...</p>
                                             </div>
                                             <div className="space-y-4">
                                                 <div className="space-y-2">
@@ -110,8 +138,8 @@ export default function ProfilePage() {
                                                     <Input 
                                                         id="name" 
                                                         placeholder="e.g. Daniel Kwame" 
-                                                        value={userName}
-                                                        onChange={(e) => setUserName(e.target.value)}
+                                                        value={fullName}
+                                                        onChange={(e) => setFullName(e.target.value)}
                                                         className="rounded-xl h-12"
                                                         required
                                                     />
@@ -121,8 +149,8 @@ export default function ProfilePage() {
                                                     <Input 
                                                         id="avatar" 
                                                         placeholder="https://..." 
-                                                        value={userAvatar}
-                                                        onChange={(e) => setUserAvatar(e.target.value)}
+                                                        value={avatarUrl}
+                                                        onChange={(e) => setAvatarUrl(e.target.value)}
                                                         className="rounded-xl h-12"
                                                     />
                                                 </div>
