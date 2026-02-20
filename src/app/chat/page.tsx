@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send, Circle, ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const contacts = [
   { id: 1, name: 'Support Agent', message: 'How can I help you today?', online: true, avatar: 'https://i.pravatar.cc/150?u=agent1' },
@@ -164,5 +165,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';
