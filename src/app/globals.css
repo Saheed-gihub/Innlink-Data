@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,7 +24,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 256 84% 69%;
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     --chart-1: 256 84% 69%;
     --chart-2: 188 95% 57%;
@@ -89,10 +90,14 @@
 }
 
 .glass-card {
-  @apply bg-card/40 backdrop-blur-xl border-white/5 shadow-2xl;
+  @apply bg-card/40 backdrop-blur-2xl border-white/10 shadow-2xl;
 }
 
 .mesh-gradient {
-  background: radial-gradient(at 0% 0%, hsla(256, 84%, 69%, 0.15) 0px, transparent 50%),
+  background: radial-gradient(at 0% 0%, hsla(256, 84%, 69%, 0.1) 0px, transparent 50%),
               radial-gradient(at 100% 100%, hsla(188, 95%, 57%, 0.1) 0px, transparent 50%);
+}
+
+.shadow-inner-soft {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
