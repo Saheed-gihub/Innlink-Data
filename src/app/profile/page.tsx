@@ -5,7 +5,7 @@ import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle, UserCircle, Phone, Mail, UserPlus } from 'lucide-react';
+import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle, UserCircle, Phone, Mail, UserPlus, Settings } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -101,7 +101,7 @@ export default function ProfilePage() {
                 <div className="container mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
                     <div className="flex items-center gap-4 bg-card/50 p-6 rounded-3xl border border-white/5">
                         <Avatar className="h-20 w-20 border-2 border-primary ring-4 ring-primary/10">
-                            <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?u=default"} />
+                            <AvatarImage src={avatarUrl || "https://picsum.photos/seed/user/200"} />
                             <AvatarFallback>{displayName[0]}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -133,7 +133,7 @@ export default function ProfilePage() {
                                             <div className="flex flex-col items-center gap-4">
                                                 <div className="relative group">
                                                     <Avatar className="h-24 w-24 border-2 border-primary/20">
-                                                        <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?u=default"} />
+                                                        <AvatarImage src={avatarUrl || "https://picsum.photos/seed/user/200"} />
                                                         <AvatarFallback><UserCircle className="h-12 w-12" /></AvatarFallback>
                                                     </Avatar>
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -146,7 +146,7 @@ export default function ProfilePage() {
                                                     <Label htmlFor="name" className="flex items-center gap-2"><User className="h-3 w-3" /> Full Name</Label>
                                                     <Input 
                                                         id="name" 
-                                                        placeholder="Daniel Kwame" 
+                                                        placeholder="Full Name" 
                                                         value={fullName}
                                                         onChange={(e) => setFullName(e.target.value)}
                                                         className="rounded-xl h-11"
@@ -157,7 +157,7 @@ export default function ProfilePage() {
                                                     <Label htmlFor="username" className="flex items-center gap-2"><UserPlus className="h-3 w-3" /> Username (Optional)</Label>
                                                     <Input 
                                                         id="username" 
-                                                        placeholder="dkwame_88" 
+                                                        placeholder="Username" 
                                                         value={username}
                                                         onChange={(e) => setUsername(e.target.value)}
                                                         className="rounded-xl h-11"
@@ -167,7 +167,7 @@ export default function ProfilePage() {
                                                     <Label htmlFor="phone" className="flex items-center gap-2"><Phone className="h-3 w-3" /> Phone Number</Label>
                                                     <Input 
                                                         id="phone" 
-                                                        placeholder="0241234567" 
+                                                        placeholder="024XXXXXXX" 
                                                         value={phoneNumber}
                                                         onChange={(e) => setPhoneNumber(e.target.value)}
                                                         className="rounded-xl h-11"
@@ -179,7 +179,7 @@ export default function ProfilePage() {
                                                     <Input 
                                                         id="email" 
                                                         type="email"
-                                                        placeholder="daniel@example.com" 
+                                                        placeholder="email@example.com" 
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
                                                         className="rounded-xl h-11"
@@ -189,7 +189,7 @@ export default function ProfilePage() {
                                                     <Label htmlFor="avatar">Avatar URL</Label>
                                                     <Input 
                                                         id="avatar" 
-                                                        placeholder="https://images.unsplash.com/..." 
+                                                        placeholder="Image URL" 
                                                         value={avatarUrl}
                                                         onChange={(e) => setAvatarUrl(e.target.value)}
                                                         className="rounded-xl h-11 text-xs"
@@ -206,15 +206,21 @@ export default function ProfilePage() {
                                     </DialogContent>
                                 </Dialog>
                                 <MenuItem 
+                                    icon={Settings} 
+                                    title="Preferences & Settings" 
+                                    description="Notifications, security, and app experience"
+                                    onClick={() => router.push('/settings')}
+                                />
+                                <MenuItem 
                                     icon={Shield} 
                                     title="KYC Verification" 
-                                    description="Verify your identity"
+                                    description="Verify your identity for higher limits"
                                     onClick={() => toast({ title: "KYC System", description: "Verification portal is temporarily offline." })}
                                 />
                                 <MenuItem 
                                     icon={Star} 
                                     title="Refer & Earn" 
-                                    description="Get rewards for inviting friends"
+                                    description="Invite friends and get GHS 5.00"
                                     onClick={() => toast({ title: "Referrals", description: "Sharing system is loading..." })}
                                 />
                             </ul>
@@ -239,8 +245,8 @@ export default function ProfilePage() {
                             </li>
                             <MenuItem 
                                 icon={LifeBuoy} 
-                                title="Customer Support" 
-                                description="Get help with your account"
+                                title="Help & Support" 
+                                description="Chat with our 24/7 support team"
                                 onClick={() => router.push('/chat')}
                             />
                         </CardContent>
