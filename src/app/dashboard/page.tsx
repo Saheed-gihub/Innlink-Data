@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import ServiceGrid from '@/components/service-grid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus, UserCircle, LoaderCircle } from 'lucide-react';
+import { Wifi, Smartphone, GraduationCap, ArrowDown, CreditCard, Send, Plus, UserCircle, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PromoBanner from '@/components/promo-banner';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,9 @@ const recentTransactions = [
 
 export default function DashboardPage() {
   const { toast } = useToast();
-  const { user, isUserLoading } = useUser();
+  const { user } = useUser();
   const firestore = useFirestore();
+  const [showBalance, setShowBalance] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -42,7 +43,8 @@ export default function DashboardPage() {
     });
   };
 
-  const walletBalance = 125.50; // In a real app, this would come from a wallet collection
+  const walletBalance = 125.50;
+  const displayName = userProfile?.username || userProfile?.fullName || 'User';
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background mesh-gradient">
@@ -60,24 +62,22 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-8 md:mb-12">
                   <div className="space-y-1">
                     <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                      {userProfile?.fullName ? 'Welcome Back,' : 'Get Started,'}
+                      Welcome Back,
                     </p>
                     {isProfileLoading ? (
                         <div className="h-8 w-32 bg-muted animate-pulse rounded" />
                     ) : (
-                        <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-                            {userProfile?.fullName || 'Guest'} <span className="text-primary">👋</span>
-                        </h2>
-                    )}
-                    {!userProfile?.fullName && !isProfileLoading && (
-                        <Link href="/profile" className="inline-block pt-2">
-                            <Button variant="link" className="p-0 h-auto text-xs text-primary font-bold">
-                                Complete your profile to personalize your app
-                            </Button>
-                        </Link>
+                        <div className="space-y-1">
+                            <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                                {displayName} <span className="text-primary">👋</span>
+                            </h2>
+                            <p className="text-xs font-mono text-muted-foreground bg-background/50 w-fit px-2 py-0.5 rounded-full border border-white/5">
+                                {userProfile?.phoneNumber || 'Account Connected'}
+                            </p>
+                        </div>
                     )}
                   </div>
-                  <Avatar className="h-12 w-12 sm:h-14 sm:w-14 md:h-20 md:w-20 ring-4 ring-primary/10 transition-all hover:scale-105">
+                  <Avatar className="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 ring-4 ring-primary/10 transition-all hover:scale-105">
                     {userProfile?.avatarUrl ? (
                         <AvatarImage src={userProfile.avatarUrl} alt="User Avatar" />
                     ) : (
@@ -90,11 +90,21 @@ export default function DashboardPage() {
 
                 <div className="relative z-10 space-y-6 md:space-y-10">
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div>
-                        <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-tighter mb-1">Available Balance</p>
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                             <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-tighter">Available Balance</p>
+                             <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 text-muted-foreground"
+                                onClick={() => setShowBalance(!showBalance)}
+                             >
+                                {showBalance ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                             </Button>
+                        </div>
                         <p className="font-headline text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
                             <span className="text-lg sm:text-xl text-primary mr-1 font-medium">GHS</span>
-                            {walletBalance.toFixed(2)}
+                            {showBalance ? walletBalance.toFixed(2) : '••••••'}
                         </p>
                     </div>
                     <Link href="/wallet" className="w-full sm:w-auto">
@@ -168,7 +178,7 @@ export default function DashboardPage() {
                         </div>
                          <div className="text-right">
                             <p className={cn("font-bold font-mono md:text-lg", tx.status === 'credit' ? 'text-green-400' : 'text-foreground')}>
-                              {tx.amount}
+                              {showBalance ? tx.amount : '••••'}
                             </p>
                             <p className="text-[10px] md:text-xs text-muted-foreground">Successful</p>
                          </div>

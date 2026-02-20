@@ -5,7 +5,7 @@ import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle, UserCircle } from 'lucide-react';
+import { ChevronRight, User, Shield, Star, Sun, Moon, LifeBuoy, LogOut, Camera, Save, LoaderCircle, UserCircle, Phone, Mail, UserPlus } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,9 @@ export default function ProfilePage() {
     const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
     const [fullName, setFullName] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [accountDialogOpen, setAccountDialogOpen] = useState(false);
@@ -39,6 +42,9 @@ export default function ProfilePage() {
     useEffect(() => {
         if (userProfile) {
             setFullName(userProfile.fullName || '');
+            setUsername(userProfile.username || '');
+            setEmail(userProfile.email || '');
+            setPhoneNumber(userProfile.phoneNumber || '');
             setAvatarUrl(userProfile.avatarUrl || '');
         }
     }, [userProfile]);
@@ -53,6 +59,9 @@ export default function ProfilePage() {
             await setDoc(doc(firestore, 'users', user.uid), {
                 id: user.uid,
                 fullName,
+                username: username.trim(),
+                email: email.trim(),
+                phoneNumber: phoneNumber.trim(),
                 avatarUrl,
                 updatedAt: serverTimestamp(),
                 createdAt: userProfile?.createdAt || serverTimestamp(),
@@ -62,7 +71,7 @@ export default function ProfilePage() {
             setAccountDialogOpen(false);
             toast({
                 title: "Profile Updated",
-                description: "Your information has been saved to your account.",
+                description: "Your information has been saved successfully.",
             });
         } catch (error) {
             setIsSaving(false);
@@ -78,9 +87,10 @@ export default function ProfilePage() {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('isLoggedIn');
         }
-        // In a real app, you'd also call auth.signOut()
         router.push('/login');
     };
+
+    const displayName = userProfile?.username || userProfile?.fullName || 'New User';
 
     if (isAuthLoading) return <div className="min-h-screen flex items-center justify-center"><LoaderCircle className="animate-spin" /></div>;
 
@@ -92,11 +102,11 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-4 bg-card/50 p-6 rounded-3xl border border-white/5">
                         <Avatar className="h-20 w-20 border-2 border-primary ring-4 ring-primary/10">
                             <AvatarImage src={avatarUrl || "https://i.pravatar.cc/150?u=default"} />
-                            <AvatarFallback>{fullName ? fullName[0] : 'U'}</AvatarFallback>
+                            <AvatarFallback>{displayName[0]}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h1 className="text-2xl font-bold font-headline">{fullName || 'New User'}</h1>
-                            <p className="text-muted-foreground">{user?.phoneNumber || 'Account Active'}</p>
+                            <h1 className="text-2xl font-bold font-headline">{displayName}</h1>
+                            <p className="text-muted-foreground">{userProfile?.phoneNumber || user?.phoneNumber || 'Account Connected'}</p>
                         </div>
                     </div>
 
@@ -108,15 +118,15 @@ export default function ProfilePage() {
                                         <MenuItem 
                                             icon={User} 
                                             title="Account Information" 
-                                            description="Set your name and profile picture"
+                                            description="Manage your profile and contact details"
                                             onClick={() => {}}
                                         />
                                     </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px] rounded-3xl">
+                                    <DialogContent className="sm:max-w-[500px] rounded-3xl">
                                         <DialogHeader>
                                             <DialogTitle className="font-headline text-xl">Account Information</DialogTitle>
                                             <DialogDescription>
-                                                This information will be displayed on your dashboard.
+                                                Keep your profile updated for a better experience.
                                             </DialogDescription>
                                         </DialogHeader>
                                         <form onSubmit={handleUpdateAccount} className="space-y-6 py-4">
@@ -130,35 +140,66 @@ export default function ProfilePage() {
                                                         <Camera className="text-white h-6 w-6" />
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground">Account unique ID: {user?.uid.slice(0, 8)}...</p>
                                             </div>
-                                            <div className="space-y-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="name">Full Name</Label>
+                                                    <Label htmlFor="name" className="flex items-center gap-2"><User className="h-3 w-3" /> Full Name</Label>
                                                     <Input 
                                                         id="name" 
-                                                        placeholder="e.g. Daniel Kwame" 
+                                                        placeholder="Daniel Kwame" 
                                                         value={fullName}
                                                         onChange={(e) => setFullName(e.target.value)}
-                                                        className="rounded-xl h-12"
+                                                        className="rounded-xl h-11"
                                                         required
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="avatar">Avatar URL (Optional)</Label>
+                                                    <Label htmlFor="username" className="flex items-center gap-2"><UserPlus className="h-3 w-3" /> Username (Optional)</Label>
+                                                    <Input 
+                                                        id="username" 
+                                                        placeholder="dkwame_88" 
+                                                        value={username}
+                                                        onChange={(e) => setUsername(e.target.value)}
+                                                        className="rounded-xl h-11"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="phone" className="flex items-center gap-2"><Phone className="h-3 w-3" /> Phone Number</Label>
+                                                    <Input 
+                                                        id="phone" 
+                                                        placeholder="0241234567" 
+                                                        value={phoneNumber}
+                                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                                        className="rounded-xl h-11"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="email" className="flex items-center gap-2"><Mail className="h-3 w-3" /> Email Address</Label>
+                                                    <Input 
+                                                        id="email" 
+                                                        type="email"
+                                                        placeholder="daniel@example.com" 
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        className="rounded-xl h-11"
+                                                    />
+                                                </div>
+                                                <div className="col-span-full space-y-2">
+                                                    <Label htmlFor="avatar">Avatar URL</Label>
                                                     <Input 
                                                         id="avatar" 
-                                                        placeholder="https://..." 
+                                                        placeholder="https://images.unsplash.com/..." 
                                                         value={avatarUrl}
                                                         onChange={(e) => setAvatarUrl(e.target.value)}
-                                                        className="rounded-xl h-12"
+                                                        className="rounded-xl h-11 text-xs"
                                                     />
                                                 </div>
                                             </div>
                                             <DialogFooter>
                                                 <Button type="submit" className="w-full h-12 rounded-xl font-bold gap-2" disabled={isSaving}>
                                                     {isSaving ? <LoaderCircle className="animate-spin h-4 w-4" /> : <Save className="h-4 w-4" />}
-                                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                                    {isSaving ? 'Saving...' : 'Save Profile Details'}
                                                 </Button>
                                             </DialogFooter>
                                         </form>
